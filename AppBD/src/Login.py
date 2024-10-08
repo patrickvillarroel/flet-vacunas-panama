@@ -18,7 +18,7 @@ def log(page: Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='logo.png',
+                                src='../img/logo.png',
                                 width=100,
                                 height=100
                             ),
@@ -86,7 +86,7 @@ def log(page: Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
+        image_src="../img/fondo2.jpg",
         image_fit=ft.ImageFit.COVER,
         content=body,
         alignment=ft.alignment.center,
