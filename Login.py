@@ -1,15 +1,13 @@
 import flet as ft
-from flet import *
 
-
-def log(page: Page):
+def login(page: ft.Page):
     page.title = 'VacunAPP'
-    page.window_width = 900
-    page.window_height = 500
+    page.window.width = 900
+    page.window.height = 500
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
 
     body = ft.Container(
         ft.Row([
@@ -18,7 +16,7 @@ def log(page: Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='logo.png',
+                                src='assets/logo.png',
                                 width=100,
                                 height=100
                             ),
@@ -28,15 +26,15 @@ def log(page: Page):
                             'Iniciar sesión',
                             width=400,
                             size=30,
-                            weight='w900',
-                            text_align='center',
+                            weight=ft.FontWeight.W_900,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         ft.Container(
                             ft.TextField(
                                 width=200,
                                 height=40,
                                 hint_text='Usuario',
-                                border='underline',
+                                border=ft.InputBorder.UNDERLINE,
                                 prefix_icon=ft.icons.PERSON,
                             ),
                             padding=ft.padding.only(20, -10),
@@ -47,7 +45,7 @@ def log(page: Page):
                                 height=40,
                                 hint_text='Contraseña',
                                 prefix_icon=ft.icons.LOCK,
-                                border='underline',
+                                border=ft.InputBorder.UNDERLINE,
                                 color='black',
                                 password=True,
                             ),
@@ -55,10 +53,11 @@ def log(page: Page):
                         ),
                         ft.Container(
                             ft.ElevatedButton(
+                                adaptive=True,
                                 content=ft.Text(
                                     'INICIAR',
                                     color='blue',
-                                    weight='w500',
+                                    weight=ft.FontWeight.W_500,
                                 ),
                                 width=200,
                                 bgcolor='white',
@@ -86,7 +85,7 @@ def log(page: Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
+        image_src="assets/fondo2.jpg",
         image_fit=ft.ImageFit.COVER,
         content=body,
         alignment=ft.alignment.center,
@@ -95,5 +94,7 @@ def log(page: Page):
 
     page.controls.append(contenedor)
     page.update()
-def open_new_window(e):
-    ft.app(target=log())
+
+
+def open_new_window():
+    ft.app(target=login)

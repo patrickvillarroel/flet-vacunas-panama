@@ -1,49 +1,54 @@
 import flet as ft
-from flet import *
-#from Connection import *
 
-global_tipo = 0
-#def conn():
-   # conexion()
-def acoount(page: Page):
-    page.title = 'VacunAPP'
-    page.window_width = 900
-    page.window_height = 500
+# Variables globales
+FONDO = "assets/fondo2.jpg"
+LOGO = "assets/logo.png"
+global_tipo = 0  # define el tipo de usuario en sesión
+
+
+# Funciones globales
+def close_dialog(page: ft.Page):
+    page.dialog.open = False
+    page.update()
+
+
+def show_error_message(page: ft.Page, message):
+    error_dialog = ft.AlertDialog(
+        title=ft.Text("Error"),
+        content=ft.Text(message),
+        actions=[
+            ft.TextButton("Cerrar", on_click=close_dialog)
+        ]
+    )
+    page.dialog = error_dialog
+    error_dialog.open = True
+    page.update()
+
+
+def account(page: ft.Page):
+    page.title = "VacunAPP"
+    page.window.width = 900
+    page.window.height = 500
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.adaptive = True
 
-    def close_dialog(e):
-        page.dialog.open = False
-        page.update()
-
-    def show_error_message(message):
-        error_dialog = ft.AlertDialog(
-            title=ft.Text("Error"),
-            content=ft.Text(message),
-            actions=[
-                ft.TextButton("Cerrar", on_click=close_dialog)
-            ]
-        )
-        page.dialog = error_dialog
-        error_dialog.open = True
-        page.update()
-
-    def insertDato(nom, us, pas, typ, page):
-        #result = conexionU(us, pas, typ)
-        print(result)
-        if result != "None":
-            insertP(nom, us, pas, typ)
-            log(page)
-        else:
-            show_error_message("Usuario ya existente")
+    # def insertDato(nom, us, pas, typ, page):
+    # result = conexionU(us, pas, typ)
+    # print(result)
+    # if result != "None":
+    # insertP(nom, us, pas, typ)
+    # log(page)
+    # else:
+    # show_error_message("Usuario ya existente")
 
     nombre = ft.TextField(
         width=200,
         height=40,
         hint_text='Cedula (e-eeee-eeee)',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
@@ -51,7 +56,7 @@ def acoount(page: Page):
         width=200,
         height=40,
         hint_text='Usuario',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
@@ -60,7 +65,7 @@ def acoount(page: Page):
         height=40,
         hint_text='Contraseña',
         prefix_icon=ft.icons.LOCK,
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         color='black',
         password=True,
         can_reveal_password=True
@@ -70,9 +75,9 @@ def acoount(page: Page):
         content=ft.Text(
             'REGISTRAR',
             color='blue',
-            weight='w500',
+            weight=ft.FontWeight.W_500,
         ),
-        on_click=lambda e: insertDato(nombre.value, user.value, password.value, 1, page),
+        # on_click=lambda e: insertDato(nombre.value, user.value, password.value, 1, page),
         width=200,
         bgcolor='white',
     )
@@ -84,7 +89,7 @@ def acoount(page: Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='logo.png',
+                                src=LOGO,
                                 width=100,
                                 height=100
                             ),
@@ -94,8 +99,8 @@ def acoount(page: Page):
                             'REGISTRARSE',
                             width=400,
                             size=30,
-                            weight='w900',
-                            text_align='center',
+                            weight=ft.FontWeight.W_500,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         ft.Container(
                             nombre,
@@ -134,8 +139,10 @@ def acoount(page: Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src=FONDO,
+            fit=ft.ImageFit.COVER
+        ),
         content=body,
         alignment=ft.alignment.center,
         margin=-10
@@ -145,47 +152,51 @@ def acoount(page: Page):
     page.controls.append(contenedor)
     page.update()
 
-#______________________________________________________________________________________________________________________
-def pac(page: Page):
+
+# ______________________________________________________________________________________________________________________
+def paciente(page: ft.Page):
     page.title = 'VacunAPP'
-    page.window_width = 1300
-    page.window_height = 700
+    page.window.width = 1300
+    page.window.height = 700
     page.bgcolor = ft.colors.BLACK
     page.padding = 0
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
-    page.window_resizable = False
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.window.resizable = False
+    page.adaptive = True
 
     result_container = ft.Column(
         alignment=ft.alignment.center
     )
 
-    ced = ft.TextField(
+    cedula = ft.TextField(
         width=300,
         height=50,
         hint_style=ft.TextStyle(color='black'),
         hint_text='Cedula del paciente a buscar',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
         color=ft.colors.BLACK,
         max_length=12,
     )
 
+    """
     def fetch_data(cedula):
-        conn = conexion()
-        cursor = conn.cursor()
-        cursor.execute(f"select * from vwPaciente where Cedula = '{cedula}'")
-        data = cursor.fetchall()
-        conn.close()
-        return data
+        #conn = conexion()
+        #cursor = conn.cursor()
+        #cursor.execute(f"select * from vwPaciente where Cedula = '{cedula}'")
+        #data = cursor.fetchall()
+        #conn.close()
+        #return data
 
     def search_user():
-        ced_value = ced.value
-        data = fetch_data(ced_value)
-        table = build_table(data)
-        result_container.controls.clear()
-        result_container.controls.append(table)
-        page.update()
+        #ced_value = ced.value
+        #data = fetch_data(ced_value)
+        #table = build_table(data)
+        #result_container.controls.clear()
+        #result_container.controls.append(table)
+        #page.update()
+    """
 
     def show_message():
         error_dialog = ft.AlertDialog(
@@ -200,10 +211,7 @@ def pac(page: Page):
         error_dialog.open = True
         page.update()
 
-    def close_dialog(e):
-        page.dialog.open = False
-        page.update()
-
+    """
     def build_table(data):
         if not data:
             return ft.Text("No se encontraron pacientes.", color=ft.colors.RED, size=20)
@@ -252,30 +260,32 @@ def pac(page: Page):
             rows=rows
         )
         return table
+    """
 
     body2 = ft.Row([
         ft.Container(
             ft.Column(
                 controls=[
+                    ft.Row(height=15),
                     ft.Row(
-                        height=15
-                    ),
-                    ft.Row(controls=[ft.Text("User Information", size=30, weight="bold", text_align=ft.alignment.top_center, color="blue")],
-                    alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
-
-                    ft.Row([ced, ft.ElevatedButton("Buscar", width=120, height=50, on_click=lambda e: search_user())],
-                    spacing=10, alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
-
+                        controls=[ft.Text("User Information", size=30, weight=ft.FontWeight.BOLD,
+                                          text_align=ft.alignment.top_center, color="blue")],
+                        alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
+                    ft.Row([cedula, ft.ElevatedButton("Buscar", width=120, height=50,
+                                                      # on_click=lambda e: search_user()
+                                                      )],
+                           spacing=10, alignment=ft.MainAxisAlignment.CENTER,
+                           vertical_alignment=ft.CrossAxisAlignment.END),
                     ft.Container(result_container, alignment=ft.alignment.center, padding=ft.padding.symmetric(100)),
                 ],
             ),
-        alignment=ft.alignment.center,
-        margin=ft.margin.all(0),
-        bgcolor=ft.colors.WHITE,
-        height=700,
-        width=1075,
+            alignment=ft.alignment.center,
+            margin=ft.margin.all(0),
+            bgcolor=ft.colors.WHITE,
+            height=700,
+            width=1075,
         )
-        ],
+    ],
         alignment=ft.alignment.center,
         vertical_alignment=ft.CrossAxisAlignment.START
     )
@@ -290,7 +300,7 @@ def pac(page: Page):
                                 controls=[
                                     ft.Container(
                                         ft.Image(
-                                            src='icon1.png',
+                                            src='assets/icon.png',
                                             width=100,
                                             height=100
 
@@ -301,8 +311,8 @@ def pac(page: Page):
                                         'Bienvenido',
                                         width=200,
                                         size=30,
-                                        weight='w300',
-                                        text_align='center',
+                                        weight=ft.FontWeight.W_300,
+                                        text_align=ft.TextAlign.CENTER,
                                     ),
                                 ],
                                 horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -314,32 +324,24 @@ def pac(page: Page):
                             ft.Column(
                                 controls=[
                                     ft.Container(
-                                        ft.ElevatedButton(content=ft.Text("Menu de inicio", color=ft.colors.BLUE), width=170, height=40, bgcolor='white', on_click=lambda e: main(page)),
+                                        ft.ElevatedButton(content=ft.Text("Menu de inicio", color=ft.colors.BLUE),
+                                                          width=170, height=40, bgcolor='white',
+                                                          on_click=lambda e: main(page)),
                                     ),
                                     ft.Container(
-                                        ft.ElevatedButton(content=ft.Text("Contactanos", color=ft.colors.BLUE), width=170, height=40, bgcolor='white', on_click=lambda e: show_message()),
+                                        ft.ElevatedButton(content=ft.Text("Contactanos", color=ft.colors.BLUE),
+                                                          width=170, height=40, bgcolor='white',
+                                                          on_click=lambda e: show_message()),
                                     ),
                                 ]
                             )
                         ],
                     ),
-                    ft.Row(
-
-                    ),
-                    ft.Row(
-
-                    ),
-
-                    ft.Row(
-                        height=100
-                    ),
-
-                    ft.Row(
-
-                    ),
-                    ft.Row(
-
-                    ),
+                    ft.Row(),
+                    ft.Row(),
+                    ft.Row(height=100),
+                    ft.Row(),
+                    ft.Row(),
                 ],
                 alignment=ft.MainAxisAlignment.SPACE_EVENLY,
                 horizontal_alignment=ft.CrossAxisAlignment.CENTER
@@ -347,13 +349,12 @@ def pac(page: Page):
             bgcolor=ft.colors.BLUE,
             height=700,
 
-
         )
     ])
 
-
+    # por usar?
     def clear_entry():
-        ced.value = " "
+        cedula.value = ""
         page.update()
 
     page.clean()
@@ -365,47 +366,32 @@ def pac(page: Page):
     page.update()
 
 
-
-#_______________________________________________________________________________________________________________________
-def log(page: Page):
+# _______________________________________________________________________________________________________________________
+def login(page: ft.Page):
     page.title = 'VacunAPP'
-    page.window_width = 900
-    page.window_height = 500
+    page.window.width = 900
+    page.window.height = 500
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.adaptive = True
 
-    def close_dialog(e):
-        page.dialog.open = False
-        page.update()
-
-    def show_error_message(message):
-        error_dialog = ft.AlertDialog(
-            title=ft.Text("Error"),
-            content=ft.Text(message),
-            actions=[
-                ft.TextButton("Cerrar", on_click=close_dialog)
-            ]
-        )
-        page.dialog = error_dialog
-        error_dialog.open = True
-        page.update()
-
+    """
     def validarDato(us, pas, typ, pag):
-        #result = conexionU(us, pas, typ)
+        result = conexionU(us, pas, typ)
         print(result)
         if result != "None":
             show_error_message("No se encontró ningún usuario con el nombre de usuario: " + us)
         else:
             pac(page)
-
+    """
 
     user = ft.TextField(
         width=200,
         height=40,
         hint_text='Usuario',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
@@ -414,19 +400,19 @@ def log(page: Page):
         height=40,
         hint_text='Contraseña',
         prefix_icon=ft.icons.LOCK,
-        border='underline',
-        color='black',
+        border=ft.InputBorder.UNDERLINE,
+        color=ft.colors.BLACK,
         password=True,
         can_reveal_password=True
     )
 
-    go = ft.ElevatedButton(
+    login_in = ft.ElevatedButton(
         content=ft.Text(
             'INICIAR',
-            color='blue',
-            weight='w500',
+            color=ft.colors.BLUE,
+            weight=ft.FontWeight.W_500,
         ),
-        on_click=lambda e: validarDato(user.value, password.value, global_tipo, page),
+        # on_click=lambda e: validarDato(user.value, password.value, global_tipo, page),
         width=200,
         bgcolor='white',
     )
@@ -438,7 +424,7 @@ def log(page: Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='logo.png',
+                                src=LOGO,
                                 width=100,
                                 height=100
                             ),
@@ -448,8 +434,8 @@ def log(page: Page):
                             'Iniciar sesión',
                             width=400,
                             size=30,
-                            weight='w900',
-                            text_align='center',
+                            weight=ft.FontWeight.W_900,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                         ft.Container(
                             user,
@@ -460,13 +446,13 @@ def log(page: Page):
                             padding=ft.padding.only(20),
                         ),
                         ft.Container(
-                            go,
+                            login_in,
                             alignment=ft.alignment.center
                         ),
                         ft.Container(
                             ft.Row([
                                 ft.Text('¿No tiene una cuenta?'),
-                                ft.TextButton('Crear una cuenta', on_click=lambda e: acoount(page)),
+                                ft.TextButton('Crear una cuenta', on_click=lambda e: account(page)),
                             ], spacing=8),
                             padding=ft.padding.only(24),
                         ),
@@ -491,8 +477,10 @@ def log(page: Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src=FONDO,
+            fit=ft.ImageFit.COVER,
+        ),
         content=body,
         alignment=ft.alignment.center,
         margin=-10
@@ -502,19 +490,21 @@ def log(page: Page):
     page.controls.append(contenedor)
     page.update()
 
-#----------------------------------------------------------------------------------------------------------------------------------------------------
-#App principal
-def main(page: Page):
 
-    Page.title = 'VacunAPP'
-    Page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    Page.bgcolor=ft.colors.WHITE
-    Page.window_width=900
-    Page.window_height=500
+# ----------------------------------------------------------------------------------------------------------------------------------------------------
+# App principal
+def main(page: ft.Page):
+    page.title = 'VacunAPP'
+    page.bgcolor = ft.colors.WHITE
+    page.window.width = 900
+    page.window.height = 500
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.adaptive = True
 
     def button_click(e, t):
         global global_tipo
-        log(e)
+        login(e)
         global_tipo = t
 
     background_container = ft.Container(
@@ -525,7 +515,7 @@ def main(page: Page):
         alignment=ft.alignment.center,
         content=ft.Column(
             controls=[
-                ft.Image(src="Icon1.png", width=100, height=100),
+                ft.Image(src="assets/icon.png", width=100, height=100),
                 ft.ElevatedButton(
                     text="Paciente",
                     on_click=lambda e: button_click(page, 1),
@@ -596,7 +586,7 @@ def main(page: Page):
                     bgcolor=ft.colors.WHITE,
                     width=30,
                     height=30,
-                    content=ft.Image(src="salidaIcon.png", width=23, height=23),
+                    content=ft.Image(src="assets/salidaIcon.png", width=23, height=23),
                     ##on_click=closeApp
                 )
             ],
@@ -608,16 +598,19 @@ def main(page: Page):
 
     contenedor3 = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src=FONDO,
+            fit=ft.ImageFit.COVER,
+        ),
         content=background_container,
         alignment=ft.alignment.center,
         margin=-10
     )
 
     page.clean()
-    page.add(contenedor3)7
+    page.add(contenedor3)
     page.update()
 
+
 if __name__ == '__main__':
-        ft.app(target=main)
+    ft.app(target=main)

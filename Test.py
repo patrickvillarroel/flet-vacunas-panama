@@ -2,9 +2,9 @@ import flet as ft
 
 def main(page: ft.Page):
     def items(count):
-        items = []
+        items_list = []
         for i in range(1, count + 1):
-            items.append(
+            items_list.append(
                 ft.Container(
                     content=ft.Text(value=str(i)),
                     alignment=ft.alignment.center,
@@ -13,7 +13,7 @@ def main(page: ft.Page):
                     bgcolor=ft.colors.AMBER_500,
                 )
             )
-        return items
+        return items_list
 
     def column_with_alignment(align: ft.MainAxisAlignment):
         return ft.Column(

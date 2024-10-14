@@ -1,87 +1,69 @@
 import flet as ft
-from flet import *
-from Connection import *
 
-def main(page: Page):
+def main(page: ft.Page):
     page.title = 'VacunAPP'
-    page.window_width = 900
-    page.window_height = 950
+    page.window.width = 900
+    page.window.height = 950
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
-    page.vertical_alignment = "center"
-    page.horizontal_alignment = "center"
-
-    def close_dialog(e):
-        page.dialog.open = False
-        page.update()
-
-    def show_error_message(message):
-        error_dialog = ft.AlertDialog(
-            title=ft.Text("Error"),
-            content=ft.Text(message),
-            actions=[
-                ft.TextButton("Cerrar", on_click=close_dialog)
-            ]
-        )
-        page.dialog = error_dialog
-        error_dialog.open = True
-        page.update()
-
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.adaptive = True
 
     nombre = ft.TextField(
         width=400,
         height=40,
         hint_text='Nombre',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
-    Apellido = ft.TextField(
+    apellido = ft.TextField(
         width=400,
         height=40,
         hint_text='Apellido',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
-    Fecha = ft.TextField(
+    fecha_nacimiento = ft.TextField(
         width=400,
         height=40,
         hint_text='Nacimiento',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.DATE_RANGE,
     )
 
-    Cedula = ft.TextField(
+    cedula = ft.TextField(
         width=400,
         height=40,
         hint_text='Cedula',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.CREDIT_CARD,
 
     )
 
-    Direccion = ft.TextField(
+    direccion = ft.TextField(
         width=400,
         height=40,
         hint_text='Direccion',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.OTHER_HOUSES,
     )
 
-    Correo = ft.TextField(
+    correo = ft.TextField(
         width=400,
         height=40,
         hint_text='Correo Electronico',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.CONTACT_MAIL,
     )
 
-    Telefono = ft.TextField(
+    telefono = ft.TextField(
         width=400,
         height=40,
         hint_text='Telefono',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.CONTACT_PHONE,
     )
 
@@ -89,7 +71,7 @@ def main(page: Page):
         width=400,
         height=40,
         hint_text='Usuario',
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.SUPERVISED_USER_CIRCLE,
     )
 
@@ -98,17 +80,17 @@ def main(page: Page):
         height=40,
         hint_text='Contraseña',
         prefix_icon=ft.icons.LOCK_PERSON,
-        border='underline',
+        border=ft.InputBorder.UNDERLINE,
         color='black',
         password=True,
         can_reveal_password=True
     )
 
-    go = ft.ElevatedButton(
+    registrar = ft.ElevatedButton(
         content=ft.Text(
             'REGISTRAR',
             color='blue',
-            weight='w500',
+            weight=ft.FontWeight.W_500,
         ),
         #on_click=lambda e: insertDato(nombre.value, user.value, password.value, 1, page),
         width=200,
@@ -122,7 +104,7 @@ def main(page: Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='logo.png',
+                                src='assets/logo.png',
                                 width=100,
                                 height=100
                             ),
@@ -134,8 +116,8 @@ def main(page: Page):
                                 'REGISTRARSE',
                                 width=400,
                                 size=30,
-                                weight='w900',
-                                text_align='center',
+                                weight=ft.FontWeight.W_900,
+                                text_align=ft.TextAlign.CENTER,
                                 ),
                             ],
                             alignment=ft.MainAxisAlignment.CENTER
@@ -148,37 +130,37 @@ def main(page: Page):
                         ),
                         ft.Row(
                             controls=[
-                                Apellido
+                                apellido
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Row(
                             controls=[
-                                Cedula
+                                cedula
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Row(
                             controls=[
-                                Fecha
+                                fecha_nacimiento
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Row(
                             controls=[
-                                Direccion
+                                direccion
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Row(
                             controls=[
-                                Correo
+                                correo
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Row(
                             controls=[
-                                Telefono
+                                telefono
                             ],
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
@@ -195,7 +177,7 @@ def main(page: Page):
                             alignment=ft.MainAxisAlignment.SPACE_EVENLY
                         ),
                         ft.Container(
-                            go,
+                            registrar,
                             alignment=ft.alignment.center
                         ),
                         ft.Row(
@@ -221,8 +203,10 @@ def main(page: Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src='assets/fondo2.jpg',
+            fit=ft.ImageFit.COVER,
+        ),
         content=body,
         alignment=ft.alignment.center,
         margin=-10

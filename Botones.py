@@ -1,16 +1,7 @@
 import flet as ft
-from flet import *
-from Connection import *
-import App as app
-from App import *
-from Login import *
 
-
-def conn_on_click(e):
-    conexion()
-
-
-pacienteButtom = ft.ElevatedButton(
+pacienteButton = ft.ElevatedButton(
+    adaptive=True,
     text="Paciente",
     #on_click=go_login(),
     width=200,
@@ -24,9 +15,10 @@ pacienteButtom = ft.ElevatedButton(
     icon=ft.icons.PERSON,
 )
 
-docButtom = ft.ElevatedButton(
+docButton = ft.ElevatedButton(
+    adaptive=True,
     text="Doctor",
-    on_click=conn_on_click,
+    #on_click=conn_on_click,
     width=200,
     height=40,
     style=ft.ButtonStyle(
@@ -38,9 +30,10 @@ docButtom = ft.ElevatedButton(
     icon=ft.icons.LOCAL_HOSPITAL,
 )
 
-adminButtom = ft.ElevatedButton(
+adminButton = ft.ElevatedButton(
+    adaptive=True,
     text="Admin",
-    on_click=conn_on_click,
+    #on_click=conn_on_click,
     width=200,
     height=40,
     style=ft.ButtonStyle(
@@ -52,9 +45,10 @@ adminButtom = ft.ElevatedButton(
     icon=ft.icons.ADMIN_PANEL_SETTINGS
 )
 
-autorButtom = ft.ElevatedButton(
+autoridadButton = ft.ElevatedButton(
+    adaptive=True,
     text="Autoridad",
-    on_click=conn_on_click,
+    #on_click=conn_on_click,
     width=200,
     height=40,
     style=ft.ButtonStyle(
@@ -66,9 +60,10 @@ autorButtom = ft.ElevatedButton(
     icon=ft.icons.SECURITY
 )
 
-provButtom = ft.ElevatedButton(
+fabricanteButton = ft.ElevatedButton(
+    adaptive=True,
     text="Proveedor",
-    on_click=conn_on_click,
+    #on_click=conn_on_click,
     width=200,
     height=40,
     style=ft.ButtonStyle(
@@ -81,9 +76,10 @@ provButtom = ft.ElevatedButton(
 )
 
 salida = ft.ElevatedButton(
-        bgcolor=ft.colors.WHITE,
-        width=30,
-        height=30,
-        content=ft.Image(src="salidaIcon.png", width=23, height=23),
-        ##on_click=closeApp
-    )
+    adaptive=True,
+    bgcolor=ft.colors.WHITE,
+    width=30,
+    height=30,
+    content=ft.Image(src="assets/salidaIcon.png", width=23, height=23),
+    ##on_click=closeApp
+)
