@@ -80,6 +80,6 @@ salida = ft.ElevatedButton(
     bgcolor=ft.colors.WHITE,
     width=30,
     height=30,
-    content=ft.Image(src="assets/salidaIcon.png", width=23, height=23),
+    content=ft.Image(src="assets/images/salidaIcon.png", width=23, height=23),
     ##on_click=closeApp
 )

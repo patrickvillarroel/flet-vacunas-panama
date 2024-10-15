@@ -16,7 +16,7 @@ def login(page: ft.Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='assets/logo.png',
+                                src='assets/images/logo.png',
                                 width=100,
                                 height=100
                             ),
@@ -85,8 +85,10 @@ def login(page: ft.Page):
 
     contenedor = ft.Container(
         expand=True,
-        image_src="assets/fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src="assets/images/fondo2.jpg",
+            fit=ft.ImageFit.COVER,
+        ),
         content=body,
         alignment=ft.alignment.center,
         margin=-10
