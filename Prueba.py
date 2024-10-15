@@ -104,7 +104,7 @@ def main(page: ft.Page):
                     controls=[
                         ft.Container(
                             ft.Image(
-                                src='assets/logo.png',
+                                src='assets/images/logo.png',
                                 width=100,
                                 height=100
                             ),
@@ -204,7 +204,7 @@ def main(page: ft.Page):
     contenedor = ft.Container(
         expand=True,
         image=ft.DecorationImage(
-            src='assets/fondo2.jpg',
+            src='assets/images/fondo2.jpg',
             fit=ft.ImageFit.COVER,
         ),
         content=body,

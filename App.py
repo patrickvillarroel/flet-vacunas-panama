@@ -1,27 +1,23 @@
 import flet as ft
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Variables globales
-FONDO = "assets/fondo2.jpg"
-LOGO = "assets/logo.png"
+FONDO = "assets/images/fondo2.jpg"
+LOGO = "assets/images/logo.png"
 global_tipo = 0  # define el tipo de usuario en sesión
 
 
 # Funciones globales
-def close_dialog(page: ft.Page):
-    page.dialog.open = False
-    page.update()
-
-
 def show_error_message(page: ft.Page, message):
     error_dialog = ft.AlertDialog(
         title=ft.Text("Error"),
         content=ft.Text(message),
-        actions=[
-            ft.TextButton("Cerrar", on_click=close_dialog)
-        ]
+        open=True,
+        on_dismiss=lambda e: logger.info("error dialog dismissed"),
     )
-    page.dialog = error_dialog
-    error_dialog.open = True
+    page.overlay.append(error_dialog)
     page.update()
 
 
@@ -99,7 +95,7 @@ def account(page: ft.Page):
                             'REGISTRARSE',
                             width=400,
                             size=30,
-                            weight=ft.FontWeight.W_500,
+                            weight=ft.FontWeight.W_900,
                             text_align=ft.TextAlign.CENTER,
                         ),
                         ft.Container(
@@ -141,7 +137,7 @@ def account(page: ft.Page):
         expand=True,
         image=ft.DecorationImage(
             src=FONDO,
-            fit=ft.ImageFit.COVER
+            fit=ft.ImageFit.COVER,
         ),
         content=body,
         alignment=ft.alignment.center,
@@ -173,7 +169,7 @@ def paciente(page: ft.Page):
         width=300,
         height=50,
         hint_style=ft.TextStyle(color='black'),
-        hint_text='Cedula del paciente a buscar',
+        hint_text='Cédula del paciente a buscar',
         border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
         color=ft.colors.BLACK,
@@ -199,16 +195,14 @@ def paciente(page: ft.Page):
     """
 
     def show_message():
-        error_dialog = ft.AlertDialog(
+        contact_dialog = ft.AlertDialog(
             title=ft.Text("Contactos"),
             content=ft.Text("Ministerio de Salud (512-9100)" + "\n" +
                             "Caja del Seguro Social (199)"),
-            actions=[
-                ft.TextButton("Cerrar", on_click=close_dialog)
-            ],
+            open=True,
+            on_dismiss=lambda e: logger.info("contact dialog dismissed"),
         )
-        page.dialog = error_dialog
-        error_dialog.open = True
+        page.overlay.append(contact_dialog)
         page.update()
 
     """
@@ -271,11 +265,8 @@ def paciente(page: ft.Page):
                         controls=[ft.Text("User Information", size=30, weight=ft.FontWeight.BOLD,
                                           text_align=ft.alignment.top_center, color="blue")],
                         alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
-                    ft.Row([cedula, ft.ElevatedButton("Buscar", width=120, height=50,
-                                                      # on_click=lambda e: search_user()
-                                                      )],
-                           spacing=10, alignment=ft.MainAxisAlignment.CENTER,
-                           vertical_alignment=ft.CrossAxisAlignment.END),
+                    ft.Row([cedula, ft.ElevatedButton("Buscar", width=120, height=50)],
+                           spacing=10, alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
                     ft.Container(result_container, alignment=ft.alignment.center, padding=ft.padding.symmetric(100)),
                 ],
             ),
@@ -300,7 +291,7 @@ def paciente(page: ft.Page):
                                 controls=[
                                     ft.Container(
                                         ft.Image(
-                                            src='assets/icon.png',
+                                            src='/images/icon.png',
                                             width=100,
                                             height=100
 
@@ -515,7 +506,7 @@ def main(page: ft.Page):
         alignment=ft.alignment.center,
         content=ft.Column(
             controls=[
-                ft.Image(src="assets/icon.png", width=100, height=100),
+                ft.Image(src="assets/images/icon.png", width=100, height=100),
                 ft.ElevatedButton(
                     text="Paciente",
                     on_click=lambda e: button_click(page, 1),
@@ -586,7 +577,7 @@ def main(page: ft.Page):
                     bgcolor=ft.colors.WHITE,
                     width=30,
                     height=30,
-                    content=ft.Image(src="assets/salidaIcon.png", width=23, height=23),
+                    content=ft.Image(src="assets/images/salidaIcon.png", width=23, height=23),
                     ##on_click=closeApp
                 )
             ],
