@@ -4,7 +4,8 @@ import datetime
 
 def formulario(page: Page):
     page.title = 'Paciente'
-    page.window_width = 900
+    page.window.width = 900
+    page.window.height = 650
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
     page.vertical_alignment = "center"
@@ -33,12 +34,41 @@ def formulario(page: Page):
         ])
     )
 
+    sexo = ft.RadioGroup(
+        content=ft.Row([
+            ft.Radio(
+                value="Masculino",
+                label="M",
+                fill_color=ft.colors.BLUE,  # Cambia el color del botón
+                label_style=ft.TextStyle(
+                    color=ft.colors.BLACK,  # Cambia el color del texto
+                )
+            ),
+            ft.Radio(
+                value="2",
+                label="F",
+                fill_color=ft.colors.BLUE,  # Cambia el color del botón
+                label_style=ft.TextStyle(
+                    color=ft.colors.BLACK,  # Cambia el color del texto
+                )
+            ),
+            ft.Radio(
+                value="3",
+                label="O",
+                fill_color=ft.colors.BLUE,  # Cambia el color del botón
+                label_style=ft.TextStyle(
+                    color=ft.colors.BLACK,  # Cambia el color del texto
+                )
+            )
+        ])
+    )
+
     def handle_change(e):
         fecha.value = e.control.value.strftime('%Y-%m-%d')
         page.update()
 
     def handle_dismissal(e):
-        page.add(ft.Text(f"DatePicker dismissed"))
+        print("Necesito una fecha")
 
     fecha = ft.TextField(label="Fecha de Nacimiento", width=210, color=ft.colors.BLACK, label_style=ft.TextStyle(color='black', size=15, weight="bold"))
 
@@ -145,7 +175,14 @@ def formulario(page: Page):
                                                                              label_style=ft.TextStyle(color='black',
                                                                                                       size=15,
                                                                                                       weight="bold")),
+                                                                ft.Row(),
+                                                                ft.Row(controls=[
+                                                                    ft.Text("Sexo: ", size=15, weight="bold",
+                                                                            color="black"), sexo],
+                                                                       alignment=ft.MainAxisAlignment.CENTER),
+
                                                             ],
+
                                                         ),
                                                         height=230
                                                     ),
@@ -164,7 +201,7 @@ def formulario(page: Page):
                                 ft.Container(
                                     ft.Column([
                                         ft.Text(
-                                            "Direccion", color="black", size=20, weight="bold"
+                                            "Direccion", color="black", size=15, weight="bold"
                                         ),
                                         ft.Dropdown(
                                             label="Provincia",  # Etiqueta personalizada
@@ -256,7 +293,7 @@ def formulario(page: Page):
                                     elevation={"pressed": 10, "default": 2},
                                     animation_duration=300,
                                 ),
-                                icon=ft.icons.UPDATE,
+                                icon=ft.icons.MEDICAL_INFORMATION,
                                 icon_color=ft.colors.WHITE,
                                 on_click=lambda e: print("Usuario Registrado!"),
                             ),
@@ -270,16 +307,35 @@ def formulario(page: Page):
                 alignment=ft.alignment.center,
                 margin=ft.margin.all(0),
                 bgcolor=ft.colors.WHITE,
-                height=500,
-                width=900,
-                expand=True
+                height=525,
+                width=880,
+                expand=True,
+
             )
         ],
-        vertical_alignment=ft.CrossAxisAlignment.START
+        vertical_alignment=ft.CrossAxisAlignment.START,
+        height=500
     )
     page.clean()
 
-    page.add(registro)
+    reg_container = ft.Container(
+        content=registro,
+        width=880,
+        height=525,
+        border=ft.border.all(4, "white"),
+        border_radius=50,
+    )
+
+    final_container = ft.Container(
+        expand=True,
+        image_src="../img/fondo2.jpg",
+        image_fit=ft.ImageFit.COVER,
+        content=reg_container,
+        alignment=ft.alignment.center,
+        margin=-10
+    )
+
+    page.add(final_container)
     page.update()
 
 

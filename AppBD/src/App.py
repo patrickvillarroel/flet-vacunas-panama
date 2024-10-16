@@ -1,10 +1,9 @@
 import flet as ft
 from flet import *
-#from Connection import *
+import datetime
 
 global_tipo = 0
-#def conn():
-   # conexion()
+
 def acoount(page: Page):
     page.title = 'VacunAPP'
     page.window_width = 900
@@ -136,18 +135,36 @@ def acoount(page: Page):
     page.update()
 
 #______________________________________________________________________________________________________________________
-def pac(page: Page):
-    page.title = 'VacunAPP'
-    page.window_width = 1300
-    page.window_height = 700
+def paciente(page: Page):
+    page.title = 'Paciente'
     page.bgcolor = ft.colors.BLACK
-    page.padding = 0
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
-    page.window_resizable = False
-
-    result_container = ft.Column(
-        alignment=ft.alignment.center
+    page.window.width = 1000
+    page.window.height = 1000
+    page.theme_mode = "LIGHT"
+    page.navigation_bar = ft.NavigationBar(
+        destinations=[
+            ft.NavigationBarDestination(
+                icon=ft.icons.INFO,
+                label="Mi Info"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.COLORIZE,
+                label="Mis Vacunas"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.PHONE,
+                label="Contactanos",
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.EXIT_TO_APP,
+                label="Salir",
+            ),
+        ],
+        on_change=lambda e: handle_nav_change(e),
+        indicator_color=ft.colors.LIGHT_BLUE_100,
+        adaptive=True
     )
 
     ced = ft.TextField(
@@ -161,15 +178,16 @@ def pac(page: Page):
         max_length=12,
     )
 
+    def CambioVacunas():
+        result_container.controls.clear()
+        result_container.controls.append(MenuVacunas)
+        page.update()
 
-    # def search_user():
-    #     ced_value = ced.value
-    #     # Esta variable guardaba la data obtenida para mostrarla en la tabla
-    #     # data = fetch_data(ced_value)
-    #     #table = build_table(data)
-    #     result_container.controls.clear()
-    #     result_container.controls.append(table)
-    #     page.update()
+    def CambioInfo():
+        result_container.controls.clear()
+        result_container.controls.append(MenuInfoUsuario)
+        page.update()
+
 
     def show_message():
         error_dialog = ft.AlertDialog(
@@ -188,153 +206,151 @@ def pac(page: Page):
         page.dialog.open = False
         page.update()
 
-    def build_table(data):
-        if not data:
-            return ft.Text("No se encontraron pacientes.", color=ft.colors.RED, size=20)
 
-        rows = []
-        for row in data:
-            rows.append(
-                ft.DataRow(
-                    cells=[
-
-                        ft.DataCell(ft.Text(row[3], color="black")),
-                        ft.DataCell(ft.Text(row[8], color="black")),
-                        ft.DataCell(ft.Text(row[4], color="black")),
-                        ft.DataCell(ft.Text(row[5], color="black")),
-                        ft.DataCell(ft.Text(row[6], color="black")),
-                        ft.DataCell(ft.Text(row[7], color="black"))
+    MenuVacunas = ft.Row(
+        [
+            ft.Container(
+                ft.Column(
+                    [
+                        ft.Text("Vacunas APP", weight="bold", size=50, color=ft.colors.BLACK),
+                        ft.Text("Tabla de Datos (En proceso)", weight="bold", size=100, color=ft.colors.RED)
                     ]
-                )
+                ),
+                alignment=ft.alignment.center,
+                margin=ft.margin.all(0),
+                bgcolor=ft.colors.WHITE,
+                height=700,
+                width=1000,
             )
-
-        table = ft.DataTable(
-            width=1050,
-            bgcolor=ft.colors.WHITE70,
-            border=ft.border.all(2, "blue"),
-            border_radius=10,
-            vertical_lines=ft.BorderSide(3, "blue"),
-            horizontal_lines=ft.BorderSide(1, "blue"),
-            sort_column_index=0,
-            sort_ascending=True,
-            heading_row_color=ft.colors.BLACK12,
-            heading_row_height=50,
-            data_row_color={"hovered": "0x30FF0000"},
-            #show_checkbox_column=True,
-            divider_thickness=0,
-
-            columns=[
-
-                ft.DataColumn(ft.Text("Vacuna", text_align=ft.alignment.center, color=ft.colors.BLUE)),
-                ft.DataColumn(ft.Text("Numero Dosis", text_align=ft.alignment.center, color=ft.colors.BLUE)),
-                ft.DataColumn(ft.Text("Enfermedad", text_align=ft.alignment.center , color=ft.colors.BLUE)),
-                ft.DataColumn(ft.Text("Fecha", text_align=ft.alignment.center, color=ft.colors.BLUE)),
-                ft.DataColumn(ft.Text("Sede", text_align=ft.alignment.center, color=ft.colors.BLUE)),
-                ft.DataColumn(ft.Text("Dependencia", text_align=ft.alignment.center, color=ft.colors.BLUE)),
-
-            ],
-            rows=rows
-        )
-        return table
-
-    body2 = ft.Row([
-        ft.Container(
-            ft.Column(
-                controls=[
-                    ft.Row(
-                        height=15
-                    ),
-                    ft.Row(controls=[ft.Text("User Information", size=30, weight="bold", text_align=ft.alignment.top_center, color="blue")],
-                    alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
-
-                    ft.Row([ced, ft.ElevatedButton("Buscar", width=120, height=50)],
-                    spacing=10, alignment=ft.MainAxisAlignment.CENTER, vertical_alignment=ft.CrossAxisAlignment.END),
-
-                    ft.Container(result_container, alignment=ft.alignment.center, padding=ft.padding.symmetric(100)),
-                ],
-            ),
-        alignment=ft.alignment.center,
-        margin=ft.margin.all(0),
-        bgcolor=ft.colors.WHITE,
-        height=700,
-        width=1075,
-        )
         ],
-        alignment=ft.alignment.center,
-        vertical_alignment=ft.CrossAxisAlignment.START
+
+    )
+    MenuInfoUsuario = ft.Row(
+        [
+            ft.Container(
+                ft.Column(
+                    [
+                      ft.Row(
+                          [
+                              ft.Text("Vacunas APP", weight="bold", size=50, color=ft.colors.BLACK),
+                           ],
+                          alignment=MainAxisAlignment.CENTER,
+                          vertical_alignment=ft.CrossAxisAlignment.START,
+                          width=850,
+                      ),
+                      ft.Row(
+                          [
+                              ft.Column( #Primera columna
+                                  [ft.Container(
+                                      ft.Column(
+                                          controls=[ft.Row([ft.Icon(ft.icons.ACCOUNT_CIRCLE), ft.Text("Datos del Usuario", weight="bold", size=15, color=ft.colors.BLACK)]),
+                                                    ft.Divider(height=5, color=ft.colors.BLACK),
+                                                    ft.TextField(label="Nombre", value="Prueba", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.TextField(label="Apellido", value="Python", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.TextField(label="Cedula", value="1", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.TextField(label="Usuario", value="Pythoner", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.TextField(label="Correo", value="prueba.py@gmail.com", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.TextField(label="Numero de Telefono", value="6574-3435", width=350, color=ft.colors.BLACK, read_only=True, label_style=ft.TextStyle(color='black', size=19, weight="bold")),
+                                                    ft.Divider(height=5, color=ft.colors.BLACK),
+                                                    ft.Row(
+                                                        controls=
+                                                        [
+                                                            ft.ElevatedButton(
+                                                                "Actualizar Información",
+                                                                width=170,
+                                                                height=50,
+                                                                style=ft.ButtonStyle(
+                                                                    color={ft.ControlState.DEFAULT: ft.colors.WHITE,
+                                                                           ft.ControlState.HOVERED: ft.colors.WHITE},
+                                                                    # Cambia el texto a negro cuando se pase el mouse
+                                                                    bgcolor={
+                                                                        ft.ControlState.DEFAULT: ft.colors.BLUE_700,
+                                                                        ft.ControlState.HOVERED: ft.colors.BLUE_900},
+                                                                    # Cambia el color del fondo cuando se pasa el mouse
+                                                                    shape=ft.RoundedRectangleBorder(radius=25),
+                                                                    # Bordes redondeados
+                                                                    elevation={"pressed": 10, "default": 2},
+                                                                    # Animación de elevación al presionar
+                                                                    animation_duration=300,
+                                                                    # Duración de la animación (en milisegundos)
+                                                                ),
+                                                                icon=ft.icons.UPDATE,  # Icono a la izquierda del texto
+                                                                icon_color=ft.colors.WHITE,  # Color del ícono
+                                                                on_click=lambda e: print("Información actualizada!")
+                                                                # Acción al hacer clic
+                                                            )
+                                                        ],
+                                                        alignment=ft.MainAxisAlignment.CENTER,
+                                                    )
+                                                    ]
+                                  ),
+                                  bgcolor=ft.colors.WHITE, width=350, alignment=ft.alignment.center, height=450)],
+                                  width=357,
+                              ),
+                              ft.Column( #Segunda columna
+                                  [ft.Container(ft.Column(controls=[
+                                      ft.Container(ft.Image(src='../img/LogoVacuna.png', width=400, height=400), alignment=ft.alignment.center),
+                                  ]), bgcolor=ft.colors.WHITE, width=350, alignment=ft.alignment.center, height=450)],
+                                  width=357,
+                              ),
+
+                          ],
+                          alignment=ft.MainAxisAlignment.CENTER,
+                          width=850
+                      ),
+                    ],
+                    alignment=ft.alignment.center
+                ),
+                alignment=ft.alignment.center,
+                margin=ft.margin.all(0),
+                bgcolor=ft.colors.WHITE,
+            )
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
     )
 
-    body3 = ft.Row([
-        ft.Container(
-            ft.Column(
-                controls=[
-                    ft.Row(
-                        controls=[
-                            ft.Column(
-                                controls=[
-                                    ft.Container(
-                                        ft.Image(
-                                            src='../img/Icon1.png',
-                                            width=100,
-                                            height=100
+    def handle_nav_change(e):
+        selected_index = e.control.selected_index
+        if selected_index == 0:
+            CambioInfo()
+        elif selected_index == 1:
+            CambioVacunas()
+        elif selected_index == 2:
+            show_message()
+        elif selected_index == 3:
+            main(page)
 
-                                        ),
-                                        alignment=ft.alignment.center
-                                    ),
-                                    ft.Text(
-                                        'Bienvenido',
-                                        width=200,
-                                        size=30,
-                                        weight='w300',
-                                        text_align='center',
-                                    ),
-                                ],
-                                horizontal_alignment=ft.CrossAxisAlignment.CENTER
-                            )
-                        ]
-                    ),
-                    ft.Row(
-                        controls=[
-                            ft.Column(
-                                controls=[
-                                    ft.Container(
-                                        ft.ElevatedButton(content=ft.Text("Menu de inicio", color=ft.colors.BLUE), width=170, height=40, bgcolor='white', on_click=lambda e: main(page)),
-                                    ),
-                                    ft.Container(
-                                        ft.ElevatedButton(content=ft.Text("Contactanos", color=ft.colors.BLUE), width=170, height=40, bgcolor='white', on_click=lambda e: show_message()),
-                                    ),
-                                ]
-                            )
-                        ],
-                    ),
-                    ft.Row(
+    result_container = ft.Row(
+        [
+            MenuInfoUsuario
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
+    )
 
-                    ),
-                    ft.Row(
+    pac_container = ft.Container(
+        ft.Column(
+            controls=
+            [
+                result_container
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.START
+        ),
+        bgcolor=ft.colors.WHITE,
+        height=580,
+        width=1000,
+        border_radius=30,
+        alignment=ft.alignment.center,
+    )
 
-                    ),
-
-                    ft.Row(
-                        height=100
-                    ),
-
-                    ft.Row(
-
-                    ),
-                    ft.Row(
-
-                    ),
-                ],
-                alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                horizontal_alignment=ft.CrossAxisAlignment.CENTER
-            ),
-            bgcolor=ft.colors.BLUE,
-            height=700,
-
-
-        )
-    ])
-
+    final_container = ft.Container(
+        expand=True,
+        image_src="../img/fondo2.jpg",
+        image_fit=ft.ImageFit.COVER,
+        content=pac_container,
+        alignment=ft.alignment.center,
+        margin=-10,
+    )
 
     def clear_entry():
         ced.value = " "
@@ -342,12 +358,10 @@ def pac(page: Page):
 
     page.clean()
 
-    page.add(ft.Row([
-        body3,
-        body2
-    ]))
+    page.add(
+        final_container,
+    )
     page.update()
-
 
 
 #_______________________________________________________________________________________________________________________
@@ -481,102 +495,118 @@ def log(page: Page):
 #App principal
 def main(page: Page):
 
-    Page.title = 'VacunAPP'
-    Page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    Page.bgcolor=ft.colors.WHITE
-    Page.window_width=900
-    Page.window_height=500
+    page.title = 'VacunAPP'
+    page.vertical_alignment = ft.MainAxisAlignment.CENTER
+    page.bgcolor=ft.colors.WHITE
+    page.window.width = 900
+    page.window.height = 800
+    page.navigation_bar = False
 
     def button_click(e, t):
         global global_tipo
-        log(e)
+        paciente(e)
         global_tipo = t
 
     background_container = ft.Container(
         expand=True,
-        width=280,
-        height=440,
+        width=500,
+        height=700,
         bgcolor=ft.colors.LIGHT_BLUE,
         alignment=ft.alignment.center,
-        content=ft.Column(
+        content=
+        ft.Container(content=ft.Column(
             controls=[
-                ft.Image(src="../img/Icon1.png", width=100, height=100),
+                ft.Text(
+                    "VACUNAS APP", color="black", size=50, weight='bold'
+                ),
+                ft.Image(src="../img/Icon1.png", width=150, height=150),
                 ft.ElevatedButton(
                     text="Paciente",
                     on_click=lambda e: button_click(page, 1),
-                    width=200,
-                    height=40,
+                    width=270,
+                    height=60,
                     style=ft.ButtonStyle(
                         bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.PERSON,
                 ),
                 ft.ElevatedButton(
                     text="Doctor",
                     on_click=lambda e: button_click(page, 2),
-                    width=200,
-                    height=40,
+                    width=270,
+                    height=60,
                     style=ft.ButtonStyle(
                         bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.BLUE},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.LOCAL_HOSPITAL,
                 ),
                 ft.ElevatedButton(
                     text="Admin",
-                    # on_click=conn_on_click,
-                    width=200,
-                    height=40,
+                    width=270,
+                    height=60,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
+                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.ADMIN_PANEL_SETTINGS
                 ),
                 ft.ElevatedButton(
                     text="Proveedor",
-                    # on_click=conn_on_click,
-                    width=200,
-                    height=40,
+                    width=270,
+                    height=60,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.BLUE},
+                        bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.SHOP,
                 ),
                 ft.ElevatedButton(
                     text="Autoridad",
-                    # on_click=conn_on_click,
-                    width=200,
-                    height=40,
+                    width=270,
+                    height=60,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
+                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.SECURITY
                 ),
 
-                ft.ElevatedButton(
-                    bgcolor=ft.colors.WHITE,
-                    width=30,
-                    height=30,
-                    content=ft.Image(src="../img/salidaIcon.png", width=23, height=23),
-                    ##on_click=closeApp
+                ft.IconButton(
+                    icon=ft.icons.EXIT_TO_APP,
+                    icon_color="black",
+                    icon_size=30,
+                    height=50,
+                    width=50,
+                    style=ft.ButtonStyle(
+                        bgcolor={"hovered": ft.colors.GREY_300},
+                    ),
+                    on_click=lambda e: page.window.close(),
                 )
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
+        ),
+            bgcolor=ft.colors.WHITE,
+            height=650,
+            width=450,
+            border_radius=20,
         ),
         border_radius=20
     )

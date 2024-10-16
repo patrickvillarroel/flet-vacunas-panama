@@ -4,8 +4,8 @@ from flet import *
 
 def log(page: Page):
     page.title = 'VacunAPP'
-    page.window_width = 900
-    page.window_height = 500
+    page.window.width = 900
+    page.window.height = 500
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
     page.vertical_alignment = "center"

@@ -3,15 +3,35 @@ from flet import *
 
 def paciente_test(page: Page):
     page.title = 'Paciente'
-    page.window_width = 1000
-    # page.window_height = 700
     page.bgcolor = ft.colors.BLACK
-    page.padding = 0
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
-    page.resizable = False
-    page.spacing = 0
-
+    page.window.width = 1000
+    page.window.height = 1000
+    page.theme_mode = "LIGHT"
+    page.navigation_bar = ft.NavigationBar(
+        destinations=[
+            ft.NavigationBarDestination(
+                icon=ft.icons.INFO,
+                label="Mi Info"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.COLORIZE,
+                label="Mis Vacunas"
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.PHONE,
+                label="Contactanos",
+            ),
+            ft.NavigationBarDestination(
+                icon=ft.icons.EXIT_TO_APP,
+                label="Salir",
+            ),
+        ],
+        on_change=lambda e: handle_nav_change(e),
+        indicator_color=ft.colors.LIGHT_BLUE_100,
+        adaptive=True
+    )
 
     ced = ft.TextField(
         width=300,
@@ -81,7 +101,8 @@ def paciente_test(page: Page):
                               ft.Text("Vacunas APP", weight="bold", size=50, color=ft.colors.BLACK),
                            ],
                           alignment=MainAxisAlignment.CENTER,
-
+                          vertical_alignment=ft.CrossAxisAlignment.START,
+                          width=850,
                       ),
                       ft.Row(
                           [
@@ -97,21 +118,37 @@ def paciente_test(page: Page):
                                                     ft.TextField(label="Correo", value="prueba.py@gmail.com", width=350, color=ft.colors.BLACK, read_only=True,label_style=ft.TextStyle(color='black', size=19, weight="bold")),
                                                     ft.TextField(label="Numero de Telefono", value="6574-3435", width=350, color=ft.colors.BLACK, read_only=True, label_style=ft.TextStyle(color='black', size=19, weight="bold")),
                                                     ft.Divider(height=5, color=ft.colors.BLACK),
-                                                    ft.ElevatedButton(
-                                                            "Actualizar Información",
-                                                            width=170,
-                                                            height=50,
-                                                            style=ft.ButtonStyle(
-                                                                color={ft.ControlState.DEFAULT: ft.colors.WHITE, ft.ControlState.HOVERED: ft.colors.WHITE},  # Cambia el texto a negro cuando se pase el mouse
-                                                                bgcolor={ft.ControlState.DEFAULT: ft.colors.BLUE_700, ft.ControlState.HOVERED: ft.colors.BLUE_900},  # Cambia el color del fondo cuando se pasa el mouse
-                                                                shape=ft.RoundedRectangleBorder(radius=25),  # Bordes redondeados
-                                                                elevation={"pressed": 10, "default": 2},  # Animación de elevación al presionar
-                                                                animation_duration=300,  # Duración de la animación (en milisegundos)
-                                                            ),
-                                                            icon=ft.icons.UPDATE,  # Icono a la izquierda del texto
-                                                            icon_color=ft.colors.WHITE,  # Color del ícono
-                                                            on_click=lambda e: print("Información actualizada!")  # Acción al hacer clic
-                                                    )]
+                                                    ft.Row(
+                                                        controls=
+                                                        [
+                                                            ft.ElevatedButton(
+                                                                "Actualizar Información",
+                                                                width=170,
+                                                                height=50,
+                                                                style=ft.ButtonStyle(
+                                                                    color={ft.ControlState.DEFAULT: ft.colors.WHITE,
+                                                                           ft.ControlState.HOVERED: ft.colors.WHITE},
+                                                                    # Cambia el texto a negro cuando se pase el mouse
+                                                                    bgcolor={
+                                                                        ft.ControlState.DEFAULT: ft.colors.BLUE_700,
+                                                                        ft.ControlState.HOVERED: ft.colors.BLUE_900},
+                                                                    # Cambia el color del fondo cuando se pasa el mouse
+                                                                    shape=ft.RoundedRectangleBorder(radius=25),
+                                                                    # Bordes redondeados
+                                                                    elevation={"pressed": 10, "default": 2},
+                                                                    # Animación de elevación al presionar
+                                                                    animation_duration=300,
+                                                                    # Duración de la animación (en milisegundos)
+                                                                ),
+                                                                icon=ft.icons.UPDATE,  # Icono a la izquierda del texto
+                                                                icon_color=ft.colors.WHITE,  # Color del ícono
+                                                                on_click=lambda e: print("Información actualizada!")
+                                                                # Acción al hacer clic
+                                                            )
+                                                        ],
+                                                        alignment=ft.MainAxisAlignment.CENTER,
+                                                    )
+                                                    ]
                                   ),
                                   bgcolor=ft.colors.WHITE, width=350, alignment=ft.alignment.center, height=450)],
                                   width=357,
@@ -125,68 +162,58 @@ def paciente_test(page: Page):
 
                           ],
                           alignment=ft.MainAxisAlignment.CENTER,
-                      )
+                          width=850
+                      ),
                     ],
+                    alignment=ft.alignment.center
                 ),
                 alignment=ft.alignment.center,
                 margin=ft.margin.all(0),
                 bgcolor=ft.colors.WHITE,
-                height=700,
-                width=1000,
             )
         ],
-        alignment=ft.alignment.center,
-        vertical_alignment=ft.CrossAxisAlignment.START
+        alignment=ft.MainAxisAlignment.CENTER,
     )
+
+    def handle_nav_change(e):
+        selected_index = e.control.selected_index
+        if selected_index == 0:
+            CambioInfo()
+        elif selected_index == 1:
+            CambioVacunas()
+        elif selected_index == 2:
+            show_message()
 
     result_container = ft.Row(
         [
             MenuInfoUsuario
-        ]
+        ],
+        alignment=ft.MainAxisAlignment.CENTER,
     )
 
-    MenuDeBotones = ft.MenuBar(
+    pac_container = ft.Container(
+        ft.Column(
+            controls=
+            [
+                result_container
+            ],
+            alignment=ft.MainAxisAlignment.CENTER,
+            horizontal_alignment=ft.CrossAxisAlignment.START
+        ),
+        bgcolor=ft.colors.WHITE,
+        height=580,
+        width=1000,
+        border_radius=30,
+        alignment=ft.alignment.center,
+    )
+
+    final_container = ft.Container(
         expand=True,
-        controls=[
-            ft.SubmenuButton(
-                content=ft.Text("Menu"),
-                width=150,
-                controls=[
-                    ft.MenuItemButton(
-                        content=ft.Text("Mi Info"),
-                        leading=ft.Icon(ft.icons.INFO),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.colors.BLUE}  # Hover en color azul
-                        ),
-                        on_click=lambda e: CambioInfo()
-                    ),
-                    ft.MenuItemButton(
-                        content=ft.Text("Mis Vacunas"),
-                        leading=ft.Icon(ft.icons.COLORIZE),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.colors.BLUE}  # Hover en color azul
-                        ),
-                        on_click=lambda e: CambioVacunas()
-                    ),
-                    ft.MenuItemButton(
-                        content=ft.Text("Contactanos"),
-                        leading=ft.Icon(ft.icons.PHONE),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.colors.BLUE}  # Hover en color verde
-                        ),
-                        on_click=lambda e: show_message(),
-                    ),
-                    ft.MenuItemButton(
-                        content=ft.Text("Salir"),
-                        leading=ft.Icon(ft.icons.EXIT_TO_APP),
-                        style=ft.ButtonStyle(
-                            bgcolor={ft.ControlState.HOVERED: ft.colors.RED}  # Hover en color rojo
-                        ),
-                        on_click=lambda e: print("Adiós")  # Corregido el evento de clic
-                    )
-                ]
-            ),
-        ]
+        image_src="../img/fondo2.jpg",
+        image_fit=ft.ImageFit.COVER,
+        content=pac_container,
+        alignment=ft.alignment.center,
+        margin=-10,
     )
 
     def clear_entry():
@@ -196,10 +223,7 @@ def paciente_test(page: Page):
     page.clean()
 
     page.add(
-        ft.Row([MenuDeBotones]),
-        ft.Row(
-            [result_container]
-        )
+        final_container,
     )
     page.update()
 
