@@ -484,105 +484,132 @@ def login(page: ft.Page):
 
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 # App principal
-def main(page: ft.Page):
+def main(page: ft.page):
+
     page.title = 'VacunAPP'
-    page.bgcolor = ft.colors.WHITE
-    page.window.width = 900
-    page.window.height = 500
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.adaptive = True
+    page.bgcolor=ft.colors.WHITE
+    page.window.width = 900
+    page.window.height = 800
+    page.navigation_bar = False
 
     def button_click(e, t):
         global global_tipo
-        login(e)
+        paciente(e)
         global_tipo = t
+
+    def resize(e):
+        # Ajustar el contenido dependiendo del tamaño de la ventana
+        if page.window.width < 600:
+            # Ajustes para pantallas pequeñas
+            background_container.width = 300
+            background_container.height = 400
+        else:
+            # Ajustes para pantallas más grandes
+            background_container.width = 500
+            background_container.height = 600
+        page.update()
 
     background_container = ft.Container(
         expand=True,
-        width=280,
-        height=440,
+        width=500,
+        height=700,
         bgcolor=ft.colors.LIGHT_BLUE,
         alignment=ft.alignment.center,
-        content=ft.Column(
+        content=
+        ft.Container(content=ft.Column(
             controls=[
-                ft.Image(src="assets/images/icon.png", width=100, height=100),
+                ft.Text(
+                    "VACUNAS APP", color="black", size=35, weight=ft.FontWeight.BOLD
+                ),
+                ft.Image(src=LOGO, width=150, height=150),
                 ft.ElevatedButton(
                     text="Paciente",
                     on_click=lambda e: button_click(page, 1),
-                    width=200,
+                    width=220,
                     height=40,
                     style=ft.ButtonStyle(
                         bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.PERSON,
                 ),
                 ft.ElevatedButton(
                     text="Doctor",
                     on_click=lambda e: button_click(page, 2),
-                    width=200,
+                    width=220,
                     height=40,
                     style=ft.ButtonStyle(
                         bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.BLUE},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=20)
                     ),
                     icon=ft.icons.LOCAL_HOSPITAL,
                 ),
                 ft.ElevatedButton(
                     text="Admin",
-                    # on_click=conn_on_click,
-                    width=200,
+                    width=220,
                     height=40,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
+                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.ADMIN_PANEL_SETTINGS
                 ),
                 ft.ElevatedButton(
                     text="Proveedor",
-                    # on_click=conn_on_click,
-                    width=200,
+                    width=220,
                     height=40,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.BLUE},
+                        bgcolor={"": ft.colors.BLUE_ACCENT, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.SHOP,
                 ),
                 ft.ElevatedButton(
                     text="Autoridad",
-                    # on_click=conn_on_click,
-                    width=200,
+                    width=220,
                     height=40,
                     style=ft.ButtonStyle(
-                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREEN_600},
+                        bgcolor={"": ft.colors.GREEN, "hovered": ft.colors.GREY},
                         color={"": ft.colors.WHITE, "hovered": ft.colors.WHITE70},
-                        shape=ft.RoundedRectangleBorder(radius=20),
-                        elevation={"": 2, "hovered": 6}
+                        shape=ft.RoundedRectangleBorder(radius=40),
+                        elevation={"": 2, "hovered": 6},
+                        text_style=ft.TextStyle(size=25)
                     ),
                     icon=ft.icons.SECURITY
                 ),
 
-                ft.ElevatedButton(
-                    bgcolor=ft.colors.WHITE,
-                    width=30,
-                    height=30,
-                    content=ft.Image(src="assets/images/salidaIcon.png", width=23, height=23),
-                    ##on_click=closeApp
+                ft.IconButton(
+                    icon=ft.icons.EXIT_TO_APP,
+                    icon_color="black",
+                    icon_size=30,
+                    height=50,
+                    width=50,
+                    style=ft.ButtonStyle(
+                        bgcolor={"hovered": ft.colors.GREY_300},
+                    ),
+                    on_click=lambda e: page.window.close(),
                 )
             ],
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER
+        ),
+            bgcolor=ft.colors.WHITE,
+            height=650,
+            width=450,
+            border_radius=20,
         ),
         border_radius=20
     )
@@ -602,6 +629,5 @@ def main(page: ft.Page):
     page.add(contenedor3)
     page.update()
 
-
 if __name__ == '__main__':
-    ft.app(target=main)
+        ft.app(target=main)
