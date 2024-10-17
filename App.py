@@ -74,7 +74,6 @@ def account(page: ft.Page):
             color='blue',
             weight=ft.FontWeight.W_500,
         ),
-        # on_click=lambda e: insertDato(nombre.value, user.value, password.value, 1, page),
         width=200,
         bgcolor='white',
     )
@@ -195,12 +194,12 @@ def paciente(page: ft.page):
         max_length=12,
     )
 
-    def CambioVacunas():
+    def cambio_vacunas():
         result_container.controls.clear()
-        result_container.controls.append(MenuVacunas)
+        result_container.controls.append(menu_vacunas)
         page.update()
 
-    def CambioInfo():
+    def cambio_info():
         result_container.controls.clear()
         result_container.controls.append(MenuInfoUsuario)
         page.update()
@@ -216,7 +215,7 @@ def paciente(page: ft.page):
         page.overlay.append(contact_dialog)
         page.update()
 
-    MenuVacunas = ft.Row(
+    menu_vacunas = ft.Row(
         [
             ft.Container(
                 ft.Column(
@@ -321,9 +320,9 @@ def paciente(page: ft.page):
     def handle_nav_change(e):
         selected_index = e.control.selected_index
         if selected_index == 0:
-            CambioInfo()
+            cambio_info()
         elif selected_index == 1:
-            CambioVacunas()
+            cambio_vacunas()
         elif selected_index == 2:
             show_message()
         elif selected_index == 3:
@@ -363,10 +362,6 @@ def paciente(page: ft.page):
         margin=-10,
     )
 
-    def clear_entry():
-        ced.value = " "
-        page.update()
-
     page.clean()
 
     page.add(
@@ -386,15 +381,6 @@ def login(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.adaptive = True
 
-    """
-    def validarDato(us, pas, typ, pag):
-        result = conexionU(us, pas, typ)
-        print(result)
-        if result != "None":
-            show_error_message("No se encontró ningún usuario con el nombre de usuario: " + us)
-        else:
-            pac(page)
-    """
 
     user = ft.TextField(
         width=200,
@@ -421,7 +407,6 @@ def login(page: ft.Page):
             color=ft.colors.BLUE,
             weight=ft.FontWeight.W_500,
         ),
-        # on_click=lambda e: validarDato(user.value, password.value, global_tipo, page),
         width=200,
         bgcolor='white',
     )
