@@ -1,17 +1,32 @@
 import flet as ft
-from flet import *
 import datetime
+from managers import ApiManager
+from typing import List
+from validations.DireccionesDto import ProvinciaDto, DistritoDto
 
-def formulario(page: Page):
+
+async def obtener_provincias_y_distritos():
+    provincias = await ApiManager.get_provincias()
+    distritos = await ApiManager.get_distritos()  # Devuelve todos los distritos
+    return provincias, distritos
+
+
+def filtrar_distritos_por_provincia(distritos: List[DistritoDto], provincia_id: int):
+    return [d for d in distritos if d.provincia.id == provincia_id]
+
+
+async def formulario(page: Page):
     page.title = 'Paciente'
-    page.window_width = 900
-    page.window_height = 650
+    page.window.width = 900
+    page.window.height = 650
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
     page.resizable = False
     page.spacing = 0
+
+    provincias, distritos = await obtener_provincias_y_distritos()
 
     doc_identificacion = ft.RadioGroup(
         content=ft.Row([
@@ -63,6 +78,61 @@ def formulario(page: Page):
         ])
     )
 
+    dropdown_provincia = ft.Dropdown(
+        label="Provincia",  # Etiqueta personalizada
+        icon_enabled_color=ft.colors.BLACK,
+        options=[ft.dropdown.Option(text=prov.nombre, key=str(prov.id)) for prov in provincias],
+        on_change=lambda e: actualizar_distritos(e.control.value),
+        value=str(0),
+        autofocus=True,
+        width=270,
+        label_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del label
+            size=16,  # Cambia el tamaño del texto
+            weight=ft.FontWeight.BOLD,  # Hacer el label en negrita
+        ),
+        text_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del texto seleccionado
+            size=14,  # Tamaño del texto seleccionado
+        ),
+        hint_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del label
+            size=14,  # Cambia el tamaño del texto
+        ),
+        bgcolor=ft.colors.WHITE,  # Color de fondo del Dropdown
+        border_radius=10,  # Esquinas redondeadas del Dropdown
+        content_padding=ft.padding.symmetric(horizontal=10, vertical=5),
+        border_color="Black"
+
+    )
+
+    dropdown_distrito = ft.Dropdown(
+        label="Dristito",  # Etiqueta personalizada
+        icon_enabled_color=ft.colors.BLACK,
+        options=[],
+        value=str(0),
+        autofocus=True,
+        width=270,
+        label_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del label
+            size=16,  # Cambia el tamaño del texto
+            weight=ft.FontWeight.BOLD,  # Hacer el label en negrita
+        ),
+        text_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del texto seleccionado
+            size=14,  # Tamaño del texto seleccionado
+        ),
+        hint_style=ft.TextStyle(
+            color=ft.colors.BLACK,  # Cambia el color del label
+            size=14,  # Cambia el tamaño del texto
+        ),
+        bgcolor=ft.colors.WHITE,  # Color de fondo del Dropdown
+        border_radius=10,  # Esquinas redondeadas del Dropdown
+        content_padding=ft.padding.symmetric(horizontal=10, vertical=5),
+        border_color="Black"
+
+    )
+
     def handle_change(e):
         fecha.value = e.control.value.strftime('%Y-%m-%d')
         page.update()
@@ -70,7 +140,7 @@ def formulario(page: Page):
     def handle_dismissal(e):
         print("Necesito una fecha")
 
-    fecha = ft.TextField(label="Fecha de Nacimiento", width=210, color=ft.colors.BLACK, label_style=ft.TextStyle(color='black', size=15, weight="bold"))
+    fecha = ft.TextField(label="Fecha de Nacimiento", width=210, color=ft.colors.BLACK, label_style=ft.TextStyle(color=ft.colors.BLACK, size=15, weight=ft.FontWeight.BOLD))
 
     registro = ft.Row(
         [
@@ -79,7 +149,7 @@ def formulario(page: Page):
                     [
                         ft.Row(
                             [
-                                ft.Text("Vacunas APP", weight="bold", size=40, color=ft.colors.BLACK),
+                                ft.Text("Vacunas APP", weight=ft.FontWeight.BOLD, size=40, color=ft.colors.BLACK),
                             ],
                             alignment=ft.MainAxisAlignment.CENTER,
                         ),
@@ -106,7 +176,7 @@ def formulario(page: Page):
                                                                 [
                                                                     ft.Text(
                                                                         "Datos Personales", color="black", size=20,
-                                                                        weight="bold"
+                                                                        weight=ft.FontWeight.BOLD,
                                                                     ),
                                                                 ],
                                                                 alignment=ft.MainAxisAlignment.CENTER,
@@ -115,22 +185,22 @@ def formulario(page: Page):
                                                                          color=ft.colors.BLACK,
                                                                          label_style=ft.TextStyle(color='black',
                                                                                                   size=15,
-                                                                                                  weight="bold")),
+                                                                                                  weight=ft.FontWeight.BOLD)),
                                                             ft.TextField(label="Segundo Nombre", width=270,
                                                                          color=ft.colors.BLACK,
                                                                          label_style=ft.TextStyle(color='black',
                                                                                                   size=15,
-                                                                                                  weight="bold")),
+                                                                                                  weight=ft.FontWeight.BOLD)),
                                                             ft.TextField(label="Apellido", width=270,
                                                                          color=ft.colors.BLACK,
                                                                          label_style=ft.TextStyle(color='black',
                                                                                                   size=15,
-                                                                                                  weight="bold")),
+                                                                                                  weight=ft.FontWeight.BOLD)),
                                                             ft.TextField(label="Segundo Apellido", width=270,
                                                                          color=ft.colors.BLACK,
                                                                          label_style=ft.TextStyle(color='black',
                                                                                                   size=15,
-                                                                                                  weight="bold")),
+                                                                                                  weight=ft.FontWeight.BOLD)),
                                                             ft.Row(controls=[
                                                                 fecha,
                                                                 ft.IconButton(
@@ -164,20 +234,20 @@ def formulario(page: Page):
                                                                              color=ft.colors.BLACK,
                                                                              label_style=ft.TextStyle(color='black',
                                                                                                       size=15,
-                                                                                                      weight="bold")),
+                                                                                                      weight=ft.FontWeight.BOLD)),
                                                                 ft.TextField(label="Num.Telefono", width=270,
                                                                              color=ft.colors.BLACK,
                                                                              label_style=ft.TextStyle(color='black',
                                                                                                       size=15,
-                                                                                                      weight="bold")),
+                                                                                                      weight=ft.FontWeight.BOLD)),
                                                                 ft.TextField(label="Corro Electronico", width=270,
                                                                              color=ft.colors.BLACK,
                                                                              label_style=ft.TextStyle(color='black',
                                                                                                       size=15,
-                                                                                                      weight="bold")),
+                                                                                                      weight=ft.FontWeight.BOLD)),
                                                                 ft.Row(),
                                                                 ft.Row(controls=[
-                                                                    ft.Text("Sexo: ", size=15, weight="bold",
+                                                                    ft.Text("Sexo: ", size=15, weight=ft.FontWeight.BOLD,
                                                                             color="black"), sexo],
                                                                        alignment=ft.MainAxisAlignment.CENTER),
 
@@ -201,69 +271,14 @@ def formulario(page: Page):
                                 ft.Container(
                                     ft.Column([
                                         ft.Text(
-                                            "Direccion", color="black", size=15, weight="bold"
+                                            "Direccion", color="black", size=15, weight=ft.FontWeight.BOLD
                                         ),
-                                        ft.Dropdown(
-                                            label="Provincia",  # Etiqueta personalizada
-                                            icon_enabled_color=ft.colors.BLACK,
-                                            options=[
-                                                ft.dropdown.Option("Panamá"),
-                                                ft.dropdown.Option("Colón"),
-                                                ft.dropdown.Option("Coclé"),
-                                            ],
-                                            autofocus=True,
-                                            width=270,
-                                            label_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del label
-                                                size=16,  # Cambia el tamaño del texto
-                                                weight="bold",  # Hacer el label en negrita
-                                            ),
-                                            text_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del texto seleccionado
-                                                size=14,  # Tamaño del texto seleccionado
-                                            ),
-                                            hint_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del label
-                                                size=14,  # Cambia el tamaño del texto
-                                            ),
-                                            bgcolor=ft.colors.WHITE,  # Color de fondo del Dropdown
-                                            border_radius=10,  # Esquinas redondeadas del Dropdown
-                                            content_padding=ft.padding.symmetric(horizontal=10, vertical=5),
-                                            border_color="Black"
-
-                                        ),
-                                        ft.Dropdown(
-                                            label="Distrito",  # Etiqueta personalizada
-                                            icon_enabled_color=ft.colors.BLACK,
-                                            options=[
-                                                ft.dropdown.Option("Panamá"),
-                                                ft.dropdown.Option("San Miguelito"),
-                                            ],
-                                            autofocus=True,
-                                            width=270,
-                                            label_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del label
-                                                size=16,  # Cambia el tamaño del texto
-                                                weight="bold",  # Hacer el label en negrita
-                                            ),
-                                            text_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del texto seleccionado
-                                                size=14,  # Tamaño del texto seleccionado
-                                            ),
-                                            hint_style=ft.TextStyle(
-                                                color=ft.colors.BLACK,  # Cambia el color del label
-                                                size=14,  # Cambia el tamaño del texto
-                                            ),
-                                            bgcolor=ft.colors.WHITE,  # Color de fondo del Dropdown
-                                            border_radius=10,  # Esquinas redondeadas del Dropdown
-                                            content_padding=ft.padding.symmetric(horizontal=10, vertical=5),
-                                            border_color="Black"
-
-                                        ),
+                                        dropdown_provincia,
+                                        dropdown_distrito,
                                         ft.TextField(label="Dirección Exacta", width=270,
                                                      color=ft.colors.BLACK,
                                                      label_style=ft.TextStyle(color='black', size=15,
-                                                                              weight="bold")),
+                                                                              weight=ft.FontWeight.BOLD)),
                                       ],
                                       horizontal_alignment=ft.CrossAxisAlignment.CENTER
                                     ),
@@ -328,14 +343,23 @@ def formulario(page: Page):
 
     final_container = ft.Container(
         expand=True,
-        image_src="../img/fondo2.jpg",
-        image_fit=ft.ImageFit.COVER,
+        image=ft.DecorationImage(
+            src="assets/images/fondo2.jpg",
+            fit=ft.ImageFit.COVER,
+        ),
         content=reg_container,
         alignment=ft.alignment.center,
         margin=-10
     )
 
     page.add(final_container)
+
+    def actualizar_distritos(provincia_id):
+        distritos_filtrados = filtrar_distritos_por_provincia(distritos, int(provincia_id))
+        dropdown_distrito.options = [ft.dropdown.Option(text=d.nombre, key=str(d.id)) for d in distritos_filtrados]
+        dropdown_distrito.value = 0
+        page.update()
+
     page.update()
 
 

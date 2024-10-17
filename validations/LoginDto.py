@@ -3,12 +3,14 @@ from uuid import UUID
 from datetime import datetime
 from typing import Optional, Set, Annotated
 
+
 class PermisoDto(BaseModel):
     id: Optional[Annotated[int, Field()]] = None
     nombre: Annotated[str, Field(max_length=100, min_length=1)]
     descripcion: Optional[Annotated[str, Field(max_length=100, min_length=1)]] = None
     created_at: Optional[Annotated[datetime, Field()]] = None
     updated_at: Optional[Annotated[datetime, Field()]] = None
+
 
 class RolDto(BaseModel):
     id: Optional[Annotated[int, Field()]] = None
@@ -18,9 +20,11 @@ class RolDto(BaseModel):
     created_at: Optional[Annotated[datetime, Field()]] = None
     updated_at: Optional[Annotated[datetime, Field()]] = None
 
+
 class LoginInDto(BaseModel):
     username: Annotated[str, Field(..., min_length=1, max_length=50)]
     password: Annotated[str, Field(..., min_length=8, max_length=70)]
+
 
 class UsuarioDto(BaseModel, LoginInDto):
     id: Optional[Annotated[UUID, Field()]] = None
