@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, Annotated, List
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class PermisoDto(BaseModel):
@@ -12,8 +12,7 @@ class PermisoDto(BaseModel):
     created_at: Optional[Annotated[datetime, Field(...)]]
     updated_at: Optional[Annotated[datetime, Field(...)]]
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class RolDto(BaseModel):
@@ -24,8 +23,7 @@ class RolDto(BaseModel):
     created_at: Optional[Annotated[datetime, Field(...)]]
     updated_at: Optional[Annotated[datetime, Field(...)]]
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class LoginInDto(BaseModel):
