@@ -1,5 +1,8 @@
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel
 
 
 class ProvinciaDto(BaseModel):
@@ -14,8 +17,8 @@ class DistritoDto(BaseModel):
 
 
 class DireccionDto(BaseModel):
-    id: int
+    id: Optional[UUID]
     direccion: str
-    distrito: DistritoDto
-    created_at: datetime
-    updated_at: datetime
+    distrito: Optional[DistritoDto]
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]

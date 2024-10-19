@@ -1,10 +1,17 @@
+from typing import List, Optional
+
 from pydantic import BaseModel
-from typing import List
+
+
+class ApiFailedDto(BaseModel):
+    code: Optional[str]
+    property: Optional[str]
+    message: Optional[str]
 
 
 class ApiResponseDto(BaseModel):
     status: dict
     data: dict
-    errors: List[dict]
-    warnings: List[dict]
+    errors: List[ApiFailedDto]
+    warnings: List[ApiFailedDto]
     metadata: dict

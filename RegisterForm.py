@@ -15,7 +15,7 @@ def filtrar_distritos_por_provincia(distritos: List[DistritoDto], provincia_id: 
     return [d for d in distritos if d.provincia.id == provincia_id]
 
 
-async def formulario(page: Page):
+async def formulario(page: ft.Page):
     page.title = 'Paciente'
     page.window.width = 900
     page.window.height = 650

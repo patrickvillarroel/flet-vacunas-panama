@@ -1,4 +1,7 @@
 flet
 pydantic
+pydantic[email]
+pydantic-extra-types
+phonenumbers
 httpx
 python-dotenv
