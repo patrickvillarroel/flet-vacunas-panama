@@ -16,7 +16,7 @@ class PacienteDto(BaseModel):
     cedula: Optional[Annotated[str, Field(None,
                                           pattern="^(PE|E|N|[23456789](?:AV|PI)?|1[0123]?(?:AV|PI)?)-(\\d{1,4})-(\\d{1,6})$",
                                           max_length=15)]]
-    pasaporte: Optional[Annotated[str, Field(None, pattern="^[A-Z0-9]{5,20}$", max_length=20)]]
+    pasaporte: Optional[Annotated[str, Field(..., pattern="^[A-Z0-9]{5,20}$", max_length=20)]] = None
     nombre: Optional[Annotated[str, Field(None, max_length=100)]]
     nombre2: Optional[Annotated[str, Field(None, max_length=100)]]
     apellido1: Optional[Annotated[str, Field(None, max_length=100)]]
@@ -24,26 +24,27 @@ class PacienteDto(BaseModel):
     correo: Optional[Annotated[EmailStr, Field(None, max_length=254)]]
     telefono: Optional[
         Annotated[PhoneNumber, Field(None, max_length=100, description="Número de teléfono en formato '+5076000000'")]]
-    fecha_nacimiento: Annotated[date, Field(None)]
-    edad: Optional[Annotated[int, Field(None)]]
-    sexo: Annotated[str, Field(None, max_length=1, pattern="^[MFX]$",
+    fecha_nacimiento: Annotated[datetime, Field(...)]
+    edad: Optional[Annotated[int, Field(...)]] = None
+    sexo: Annotated[str, Field('X', max_length=1, pattern="^[MFX]$",
                                description="Sexo permitos= M masculino, F femenino y X otros")]
     estado: Annotated[str, Field("NO_VALIDADO", max_length=50)]
-    disabled: Annotated[bool, Field(False)]
-    direccion: Optional[Annotated[DireccionDto, Field(None)]]
+    disabled: Annotated[bool, Field(True)]
+    direccion: Optional[Annotated[DireccionDto, Field(...)]] = None
     usuario: Optional[Annotated[UsuarioDto, Field(None)]]
 
 
     @field_validator('telefono')
     def validate_telefono(cls, v: str) -> str:
         try:
-            numero = parse(v)
-            return format_number(numero, PhoneNumberFormat.E164)
+            if v is not None:
+                numero = parse(v)
+                return format_number(numero, PhoneNumberFormat.E164)
         except NumberParseException:
             raise ValueError("Error al validar número de teléfono en formato E.164")
 
     @field_validator('fecha_nacimiento')
-    def validate_fecha_nacimiento(cls, v: date) -> date:
-        if v > date.today():
+    def validate_fecha_nacimiento(cls, v: datetime) -> datetime:
+        if v.date() > date.today():
             raise ValueError("La fecha debe ser hoy o en el pasado")
         return v

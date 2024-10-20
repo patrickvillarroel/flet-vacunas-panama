@@ -2,7 +2,7 @@ import logging
 
 import flet as ft
 
-from managers import ApiManager
+import ApiManager
 from validations.PacienteDto import PacienteDto
 
 logging.basicConfig(level=logging.INFO)
@@ -40,8 +40,7 @@ async def main(page: ft.Page):
     # Configurar controles de input text
     username = ft.TextField(autofocus=True, text_style=ft.TextStyle(color=ft.colors.BLACK))
     password = ft.TextField(password=True, can_reveal_password=True, text_style=ft.TextStyle(color=ft.colors.BLACK))
-    page.add(username)
-    page.add(password)
+    page.add(username, password)
 
     async def handle_login(e):
         await login(page, username.value, password.value)

@@ -1,7 +1,9 @@
-import flet as ft
-from managers import ApiManager
 from typing import List
-from validations.DireccionesDto import ProvinciaDto, DistritoDto  # Asumiendo que ya tienes estas clases
+
+import flet as ft
+
+import ApiManager
+from validations.DireccionesDto import DistritoDto  # Asumiendo que ya tienes estas clases
 
 
 # Obtener tanto provincias como distritos al inicio

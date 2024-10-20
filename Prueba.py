@@ -1,9 +1,11 @@
 import flet as ft
-from managers import ApiManager
+
+import ApiManager
 
 
 async def obtener_opciones():
-    # List[ProvinciaDto]    # Esta función puede generar los datos dinámicamente o extraerlos de una fuente
+    # List[ProvinciaDto]
+    # Esta función puede generar los datos dinámicamente o extraerlos de una fuente
     provincias = await ApiManager.get_provincias()  # Convierte los datos en una lista de Dropdown.Option
     return [ft.dropdown.Option(text=op.nombre, key=str(op.id)) for op in provincias]
 
