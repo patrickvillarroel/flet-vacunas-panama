@@ -74,7 +74,7 @@ async def register_paciente(paciente_dto: PacienteDto) -> dict:
     async with httpx.AsyncClient() as client:
         try:
             paciente = paciente_dto.model_dump(mode="json", exclude_none=True)
-            logger.info(paciente)
+            logger.debug(paciente)
             response = await client.post(f"{BASE_URL}/bulk/create/paciente-usuario-direccion", json=paciente)
             response_json = response.json()
             api_response = ApiResponseDto(**response_json)
