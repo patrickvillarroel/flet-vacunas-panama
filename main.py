@@ -1,13 +1,13 @@
 import asyncio
+import datetime
+import logging
+from typing import List
 
 import flet as ft
-import logging
-import datetime
-import ApiManager
-from typing import List
-from util import RolesEnum
 from pydantic import ValidationError
 
+import ApiManager
+from util import RolesEnum
 from validations.AccountDto import UsuarioDto, RolDto
 from validations.DireccionesDto import DistritoDto
 from validations.PacienteDto import PacienteDto
@@ -23,7 +23,6 @@ TITULO = "Vacunas APP"
 
 
 # Funciones globales
-
 async def obtener_provincias_y_distritos():
     provincias = await ApiManager.get_provincias()
     distritos = await ApiManager.get_distritos()  # Devuelve todos los distritos
@@ -68,7 +67,14 @@ async def formulario(page: ft.Page):
         nombre2 = segundo_nombre.value if segundo_nombre.value and not segundo_nombre.value.isspace() else None
         apellido1 = apellido.value if apellido.value and not apellido.value.isspace() else None
         apellido2 = segundo_apellido.value if segundo_apellido.value and not segundo_apellido.value.isspace() else None
-        fecha_nacimiento_valid = fecha.value.format('%d-%m-%YT%T') if fecha.value else None
+        if fecha.value:
+            # Primero convierte el formato de texto a datetime
+            fecha_datetime = datetime.datetime.strptime(fecha.value, "%d-%m-%Y")
+
+            # Luego lo formateas al formato que espera Java (ISO 8601)
+            fecha_nacimiento_valid = fecha_datetime.strftime("%Y-%m-%dT%H:%M:%S")
+        else:
+            fecha_nacimiento_valid = None
         pasaporte_valid = pasaporte.value if pasaporte.value and not pasaporte.value.isspace() else None
         cedula_valid = cedula.value if cedula.value and not cedula.value.isspace() else None
         correo_valid = correo.value if correo.value and not correo.value.isspace() else None
@@ -127,7 +133,7 @@ async def formulario(page: ft.Page):
         data = await ApiManager.register_paciente(paciente_dto)
         if data:
             logger.info(data)
-            asyncio.run(paciente(page, data))
+            await paciente(page, data)
         else:
             page.overlay.append(ft.AlertDialog(content=ft.Text(value="Error recibido"), open=True))
             logger.error("No hay data obtenida")
