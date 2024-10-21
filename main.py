@@ -20,6 +20,9 @@ FONDO = "assets/images/fondo2.jpg"
 LOGO = "assets/images/logo.png"
 global_tipo: RolesEnum.Roles
 TITULO = "Vacunas APP"
+locked = False
+remaining_time = 30
+timers = []
 
 
 # Funciones globales
@@ -43,11 +46,8 @@ def show_error_message(page: ft.Page, message):
     page.overlay.append(error_dialog)
     page.update()
 
-
 async def formulario(page: ft.Page):
     page.title = 'Paciente'
-    page.window.width = 900
-    page.window.height = 650
     page.bgcolor = ft.colors.TRANSPARENT
     page.padding = 0
     page.vertical_alignment = "center"
@@ -133,7 +133,7 @@ async def formulario(page: ft.Page):
         data = await ApiManager.register_paciente(paciente_dto)
         if data:
             logger.info(data)
-            await paciente(page, data)
+            await login(page)
         else:
             page.overlay.append(ft.AlertDialog(content=ft.Text(value="Error recibido"), open=True))
             logger.error("No hay data obtenida")
@@ -237,7 +237,7 @@ async def formulario(page: ft.Page):
                                     label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
 
     fecha = ft.TextField(label="Fecha de Nacimiento *", width=210, color=ft.colors.BLACK,
-                         label_style=ft.TextStyle(color=ft.colors.BLACK, size=15, weight=ft.FontWeight.BOLD))
+                         label_style=ft.TextStyle(color=ft.colors.BLACK, size=15, weight=ft.FontWeight.BOLD), read_only=True, hint_text="DD/MM/AAAA")
 
     pasaporte = ft.TextField(label="Pasaporte *", width=270, color=ft.colors.BLACK,
                              label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
@@ -246,7 +246,7 @@ async def formulario(page: ft.Page):
                           label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
 
     password = ft.TextField(label="Contraseña *", width=270, color=ft.colors.BLACK,
-                            label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
+                            label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD), password=True, can_reveal_password=True)
 
     direccion = ft.TextField(label="Dirección Exacta", width=270, color=ft.colors.BLACK,
                              label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
@@ -255,11 +255,23 @@ async def formulario(page: ft.Page):
                           label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
 
     telefono = ft.TextField(label="Num.Telefono", width=270, color=ft.colors.BLACK,
-                            label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
+                            label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD), hint_text="+50700000000")
 
     usuario = ft.TextField(label="Nombre de Usuario", width=270, color=ft.colors.BLACK,
                            label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
 
+    loading_ring = ft.ProgressRing(
+        visible=False,
+        width=50,
+        height=50
+    )
+
+    remaining_time_label = ft.Text(
+        f"Tiempo restante para actualizar: {remaining_time} segundos",
+        size=12,
+        color=ft.colors.GREY,
+        visible=False
+    )
     def handle_change(e):
         fecha.value = e.control.value.strftime('%d-%m-%Y')
         # Formato para enviar '%d-%m-%YT%T'
@@ -267,6 +279,28 @@ async def formulario(page: ft.Page):
 
     def handle_dismissal(e):
         print("Necesito una fecha")
+
+    def unlock_button():
+        global locked, remaining_time
+        locked = False
+        remaining_time = 30
+        remaining_time_label.visible = False
+        page.update()
+
+    def update_remaining_time():
+        global remaining_time
+        if remaining_time > 0:
+            remaining_time -= 1
+            remaining_time_label.value = f"Tiempo restante para actualizar: {remaining_time} segundos"
+            page.update()
+            timer = threading.Timer(1.0, update_remaining_time)
+            timers.append(timer)
+            timer.start()
+        else:
+            unlock_button()
+            for timer in timers:
+                timer.cancel()
+            timers.clear()
 
     registro = ft.Column(
         controls=[
@@ -440,12 +474,17 @@ async def formulario(page: ft.Page):
 
 # ______________________________________________________________________________________________________________________
 
-async def paciente(page: ft.page, data: dict):
+async def pacientes(page: ft.page, data: dict):
     page.title = 'Paciente'
-    page.bgcolor = ft.colors.BLACK
+    page.bgcolor = ft.colors.TRANSPARENT
     page.vertical_alignment = "center"
     page.horizontal_alignment = "center"
     page.theme_mode = "LIGHT"
+    page.decoration = ft.BoxDecoration(image=ft.DecorationImage(
+        src="assets/images/fondo2.jpg",
+        fit=ft.ImageFit.COVER,
+    ))
+    page.scroll = False
     page.navigation_bar = ft.NavigationBar(
         destinations=[
             ft.NavigationBarDestination(
@@ -493,6 +532,53 @@ async def paciente(page: ft.page, data: dict):
         max_length=12,
     )
 
+    def build_table():  # Construcción de la tabla
+        # if not data:
+        #     return ft.Text("No se encontraron vacunas colocadas para este paciente.", color=ft.colors.RED, size=20)
+        #
+        # rows = [ft.DataRow(cells=[
+        #     ft.DataCell(ft.Text(row[0], color="black")),
+        #     ft.DataCell(ft.Text(row[1], color="black")),
+        #     ft.DataCell(ft.Text(row[2], color="black")),
+        #     ft.DataCell(ft.Text(row[3], color="black")),
+        #     ft.DataCell(ft.Text(row[4], color="black")),
+        #     ft.DataCell(ft.Text(row[5], color="black"))
+        # ]) for row in data]
+
+        rows = [ft.DataRow(cells=[
+            ft.DataCell(ft.Text("row[0]", color="black")),
+            ft.DataCell(ft.Text("row[1]", color="black")),
+            ft.DataCell(ft.Text("row[2]", color="black")),
+            ft.DataCell(ft.Text("row[3]", color="black")),
+        ])
+        ]
+
+        return ft.DataTable(
+            width=950,
+            bgcolor=ft.colors.WHITE70,
+            border=ft.border.all(2, "blue"),
+            border_radius=10,
+            vertical_lines=ft.BorderSide(3, "blue"),
+            horizontal_lines=ft.BorderSide(1, "blue"),
+            sort_column_index=0,
+            sort_ascending=True,
+            heading_row_color=ft.colors.BLACK12,
+            heading_row_height=50,
+            data_row_color={"hovered": "0x30FF0000"},
+            divider_thickness=0,
+
+            columns=[
+                ft.DataColumn(ft.Text("Vacuna", text_align=ft.alignment.center, color=ft.colors.BLUE)),
+                ft.DataColumn(
+                    ft.Text("Número Dosis", width=53, text_align=ft.alignment.center_left, color=ft.colors.BLUE)),
+                ft.DataColumn(
+                    ft.Text("Enfermedad previene", width=90, text_align=ft.alignment.center, color=ft.colors.BLUE)),
+                ft.DataColumn(
+                    ft.Text("Fecha de aplicación", width=215,
+                            text_align=ft.alignment.center, color=ft.colors.BLUE)),
+            ],
+            rows=rows
+        )
     def cambio_vacunas():
         result_container.controls.clear()
         result_container.controls.append(menu_vacunas)
@@ -514,25 +600,6 @@ async def paciente(page: ft.page, data: dict):
         page.overlay.append(contact_dialog)
         page.update()
 
-    menu_vacunas = ft.Row(
-        [
-            ft.Container(
-                ft.Column(
-                    [
-                        ft.Text(TITULO, weight=ft.FontWeight.BOLD, size=50, color=ft.colors.BLACK),
-                        ft.Text(value="Bienvenido " + paciente.nombre, color=ft.colors.BLACK),
-                        ft.Text("Tabla de Datos (En proceso)", weight=ft.FontWeight.BOLD, size=100, color=ft.colors.RED)
-                    ]
-                ),
-                alignment=ft.alignment.center,
-                margin=ft.margin.all(0),
-                bgcolor=ft.colors.WHITE,
-                height=700,
-                width=1000,
-            )
-        ],
-
-    )
 
     menu_usuario = ft.Row(
         [
@@ -556,27 +623,27 @@ async def paciente(page: ft.page, data: dict):
                                                               ft.Text("Datos del Usuario", weight=ft.FontWeight.BOLD,
                                                                       size=15, color=ft.colors.BLACK)]),
                                                       ft.Divider(height=5, color=ft.colors.BLACK),
-                                                      ft.TextField(label="Nombre", value="Prueba", width=350,
+                                                      ft.TextField(label="Nombre", value=paciente.nombre, width=350,
                                                                    color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
-                                                      ft.TextField(label="Apellido", value="Python", width=350,
+                                                      ft.TextField(label="Apellido", value=paciente.apellido1, width=350,
                                                                    color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
-                                                      ft.TextField(label="Cedula", value="1", width=350,
+                                                      ft.TextField(label="Cedula", value=paciente.cedula, width=350,
                                                                    color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
-                                                      ft.TextField(label="Usuario", value="Pythoner", width=350,
+                                                      ft.TextField(label="Usuario", value=paciente.usuario.username, width=350,
                                                                    color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
-                                                      ft.TextField(label="Correo", value="prueba.py@gmail.com",
+                                                      ft.TextField(label="Correo", value=paciente.correo,
                                                                    width=350, color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
-                                                      ft.TextField(label="Numero de Telefono", value="6574-3435",
+                                                      ft.TextField(label="Numero de Telefono", value=paciente.telefono,
                                                                    width=350, color=ft.colors.BLACK, read_only=True,
                                                                    label_style=ft.TextStyle(color='black', size=19,
                                                                                             weight=ft.FontWeight.BOLD)),
@@ -675,6 +742,26 @@ async def paciente(page: ft.page, data: dict):
         alignment=ft.alignment.center,
     )
 
+    menu_vacunas = ft.Row(
+        [
+            ft.Container(
+                ft.Column(
+                    [
+                        ft.Text(TITULO, weight=ft.FontWeight.BOLD, size=50, color=ft.colors.BLACK),
+                        ft.Text(value="Bienvenido " + paciente.nombre, color=ft.colors.BLACK),
+                        build_table()
+                    ]
+                ),
+                alignment=ft.alignment.center,
+                margin=ft.margin.all(0),
+                bgcolor=ft.colors.WHITE,
+                height=700,
+                width=1000,
+            )
+        ],
+
+    )
+
     final_container = ft.Container(
         expand=True,
         image=ft.DecorationImage(
@@ -697,13 +784,52 @@ async def paciente(page: ft.page, data: dict):
 # _______________________________________________________________________________________________________________________
 async def login(page: ft.Page):
     page.title = 'VacunAPP'
-    page.window.width = 900
-    page.window.height = 500
     page.bgcolor = ft.colors.WHITE
     page.padding = 0
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.adaptive = True
+
+    async def login_pass(page: ft.Page, username: str, password: str):
+        if username and not username.isspace() and password and not password.isspace():
+            try:
+                response = await ApiManager.login_paciente(username, password)
+                logger.info(f"Respuesta del servidor: {response}")
+
+                if "error" not in response:
+                    paciente_json = response.get("paciente")
+
+                    if paciente_json:
+                        logger.info(f"Paciente encontrado: {paciente_json}")
+                        paciente_log = PacienteDto(**paciente_json)
+                        # Guardar tokens en la sesión
+                        page.session.set("access_token", response.get("access_token"))
+                        page.session.set("refresh_token", response.get("refresh_token"))
+                        logger.info("Token en session storage: %s", page.session.contains_key("access_token"))
+
+                        # Llamar a la función `paciente` solo si hay información válida
+                        await pacientes(page, response)
+                    else:
+                        logger.warning("No se encontró información del paciente")
+                        page.overlay.append(ft.AlertDialog(content=ft.Text(value="No es un paciente"), open=True))
+                else:
+                    error_message = response.get("error", "Error desconocido")
+                    logger.error(f"Error en la respuesta: {error_message}")
+                    page.overlay.append(
+                        ft.AlertDialog(content=ft.Text(value="Ha ocurrido un error en el login"), open=True))
+
+            except Exception as e:
+                logger.exception("Error durante el login")
+                page.overlay.append(ft.AlertDialog(content=ft.Text(value="Error de conexión o de servidor"), open=True))
+
+        else:
+            page.overlay.append(ft.AlertDialog(content=ft.Text(value="Usuario y contraseña son requeridos"), open=True))
+
+        # Asegúrate de actualizar la página
+        page.update()
+
+    async def handle_login():
+        await login_pass(page, user.value, password.value)
 
     user = ft.TextField(
         width=200,
@@ -732,6 +858,7 @@ async def login(page: ft.Page):
         ),
         width=200,
         bgcolor='white',
+        on_click=lambda e: asyncio.run(handle_login())
     )
 
     body = ft.Container(
@@ -812,10 +939,13 @@ async def login(page: ft.Page):
 # ----------------------------------------------------------------------------------------------------------------------------------------------------
 # App principal
 def main(page: ft.page):
+    page.session.clear()
     page.title = 'VacunAPP'
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.bgcolor = ft.colors.WHITE
     page.navigation_bar = False
+    page.window.maximized = True
+    page.scroll = False
 
     def button_click(e: ft.Page, t: RolesEnum.Roles):
         global global_tipo
