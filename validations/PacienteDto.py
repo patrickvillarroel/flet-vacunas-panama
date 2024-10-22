@@ -33,7 +33,6 @@ class PacienteDto(BaseModel):
     direccion: Optional[Annotated[DireccionDto, Field(...)]] = None
     usuario: Optional[Annotated[UsuarioDto, Field(None)]]
 
-
     @field_validator('telefono')
     def validate_telefono(cls, v: str) -> str:
         try:
@@ -48,3 +47,31 @@ class PacienteDto(BaseModel):
         if v.date() > date.today():
             raise ValueError("La fecha debe ser hoy o en el pasado")
         return v
+
+
+class VistaVacunaEnfermedad(BaseModel):
+    vacuna: str
+    enfermedades: Optional[list[dict]] = None
+    sede: str
+    dependencia: str
+    id_vacuna: UUID
+    numero_dosis: str
+    edad_min_recomendada_meses: Optional[int] = None
+    fecha_aplicacion: datetime
+    intervalo_recomendado_dosis_dias: Optional[float] = None
+    intervalo_real_dosis_dias: Optional[int] = None
+
+
+def from_json_to_vista_vacuna_enfermedad(json_data: dict) -> VistaVacunaEnfermedad:
+    return VistaVacunaEnfermedad(
+        vacuna=json_data.get("vacuna"),
+        enfermedades=json_data.get("enfermedades"),
+        sede=json_data.get("sede"),
+        dependencia=json_data.get("dependencia"),
+        id_vacuna=json_data.get("id_vacuna"),
+        numero_dosis=json_data.get("numero_dosis"),
+        edad_min_recomendada_meses=json_data.get("edad_min_recomendada"),
+        fecha_aplicacion=json_data.get("fecha_aplicacion"),
+        intervalo_recomendado_dosis_dias=json_data.get("intervalo_recomendado_dosis"),
+        intervalo_real_dosis_dias=json_data.get("intervalo_real_dosis")
+    )

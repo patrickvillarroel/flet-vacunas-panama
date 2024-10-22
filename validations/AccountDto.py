@@ -39,8 +39,3 @@ class UsuarioDto(BaseModel):
     updated_at: Optional[Annotated[datetime, Field(...)]] = None
     last_used: Optional[Annotated[datetime, Field(...)]] = None
     roles: Annotated[List[RolDto], Field(..., min_length=1, frozen=True)]
-    cedula: Optional[Annotated[str, Field(None,
-                                          pattern="^(PE|E|N|[23456789](?:AV|PI)?|1[0123]?(?:AV|PI)?)-(\\d{1,4})-(\\d{1,6})$",
-                                          max_length=15)]] = None
-    pasaporte: Optional[Annotated[str, Field(..., pattern="^[A-Z0-9]{5,20}$", max_length=20)]] = None
-    licencia_fabricante: Optional[Annotated[str, Field(..., pattern="^.+/DNFD$", max_length=50)]] = None

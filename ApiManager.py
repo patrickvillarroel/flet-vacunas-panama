@@ -1,9 +1,11 @@
 import logging
 import os
 from typing import List
+from uuid import UUID
 
 import httpx
 from dotenv import load_dotenv
+from httpx import Response
 
 from validations.ApiResponseDto import ApiResponseDto
 from validations.DireccionesDto import DistritoDto, ProvinciaDto
@@ -92,6 +94,46 @@ async def register_paciente(paciente_dto: PacienteDto) -> dict:
             return {}
 
 
+async def get_vista_paciente_vacuna_enfermedad(token: str) -> dict:
+    if not token or token.isspace():
+        logging.error("Error al intentar obtener vista paciente, token no suministrado")
+    headers = {"Authorization": f"Bearer {token}"}
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(f"{BASE_URL}/patient", headers=headers)
+            response_json = response.json()
+            api_response = ApiResponseDto(**response_json)
+            response.raise_for_status()
+            return api_response.data
+        except httpx.HTTPStatusError as execption:
+            logger.error(execption)
+            if api_response.errors:
+                logger.error(api_response.errors)
+            if api_response.warnings:
+                logger.warning(api_response.warnings)
+            return {"error": "No se pudo volver a acceder a los datos"}
+        except Exception as e:
+            logger.error(f"Error al obtener vista paciente. {e}")
+            return {"error": "Error inesperado"}
+
+
+async def get_pdf_file_paciente(id_paciente: UUID, id_vacuna: UUID) -> Response | None:
+    if id_paciente and id_vacuna:
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.get(f"{BASE_URL}/pdf?idVacuna={id_vacuna}&idPaciente={id_paciente}")
+                response.raise_for_status()
+            except httpx.HTTPStatusError as exception:
+                logger.error(exception)
+            except Exception as e:
+                logger.error(f"Error al obtener PDF de paciente. {e}")
+                return None
+            return response
+    else:
+        logger.error("Error al intentar pedir PDF paciente, ID's no dados")
+        return None
+
+
 async def refresh_tokens(refresh_token: str) -> dict:
     if not refresh_token or refresh_token.isspace():
         logging.error("Error al intentar refresh token token no dado")
@@ -113,3 +155,4 @@ async def refresh_tokens(refresh_token: str) -> dict:
             return {"error": "No se pudo volver a acceder a los datos"}
         except Exception as e:
             logger.error(f"Error al refrescar token. {e}")
+            return {"error": "Error inesperado"}
