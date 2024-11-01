@@ -1,6 +1,6 @@
 # :syringe: Proyecto de Gestión de Información sobre Vacunación en Panamá - Fronted
 
-![Imagen logo del proyecto](https://github.com/Kingg22/desktopapp-vacunas-panama/blob/8a9c61eaada5e77ada158bd032a3814ea4402b22/src/main/resources/images/operacionVacunas_logo_pequeno.png)
+![Imagen logo del proyecto](https://github.com/Kingg22/api-vacunas-panama/blob/6af77570fccb3737547a1065f8f4d25316c896c8/src/main/resources/images/icon.png)
 
 Este es el repositorio **fronted** para el proyecto, el cual tiene como objetivo facilitar la gestión y seguimiento de 
 vacunas en diversas sedes y con múltiples usuarios. Esta aplicación permite la interacción con el backend para realizar operaciones relacionadas con la administración de
@@ -50,7 +50,11 @@ Sigue estos pasos para clonar el repositorio:
     ```bash
     pip install -r requirements.txt
     ```
-4. Iniciar el programa
+4. Crear archivo .env con:
+   ```dotenv
+    BASE_URL=link a la api
+   ```
+5. Iniciar el programa
 
    Desktop app:
    ```bash
@@ -60,3 +64,8 @@ Sigue estos pasos para clonar el repositorio:
    ```bash
    flet run --web --port 8000 main.py
    ```
+   iOS: https://flet.dev/docs/getting-started/testing-on-ios
+
+   Android: https://flet.dev/docs/getting-started/testing-on-android
+
+   Publish: https://flet.dev/docs/publish
