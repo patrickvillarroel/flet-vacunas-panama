@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 import logging
-import threading
 from typing import List
 from uuid import UUID
 
@@ -16,18 +15,26 @@ from validations.DireccionesDto import DistritoDto
 from validations.PacienteDto import PacienteDto, VistaVacunaEnfermedad, from_json_to_vista_vacuna_enfermedad
 
 logging.basicConfig(level=logging.INFO)
+# Colocarle a httpx solo nivel WARN
+httpx_logger = logging.getLogger("httpx")
+httpx_logger.setLevel(logging.WARN)
+handler = logging.StreamHandler()
+handler.setLevel(logging.WARN)
+httpx_logger.addHandler(handler)
+
 logger = logging.getLogger(__name__)
 
 # Variables globales
-FONDO = "assets/images/fondo2.jpg"
-LOGO = "assets/images/logo.png"
+FONDO = f"/images/fondo2.jpg"
+LOGO = f"/images/logo.png"
 global_tipo: RolesEnum.Roles
 TITULO = "Vacunas APP"
+
 
 # Funciones globales
 async def obtener_provincias_y_distritos():
     provincias = await ApiManager.get_provincias()
-    distritos = await ApiManager.get_distritos()  # Devuelve todos los distritos
+    distritos = await ApiManager.get_distritos()
     return provincias, distritos
 
 
@@ -57,7 +64,7 @@ async def formulario(page: ft.Page):
     page.theme_mode = "LIGHT"
     page.scroll = ft.ScrollMode.AUTO
     page.decoration = ft.BoxDecoration(image=ft.DecorationImage(
-        src="assets/images/fondo2.jpg",
+        src=FONDO,
         fit=ft.ImageFit.COVER,
     ))
 
@@ -273,7 +280,6 @@ async def formulario(page: ft.Page):
     def handle_dismissal(e):
         print("Necesito una fecha")
 
-
     registro = ft.Column(
         controls=[
             ft.Column(
@@ -456,7 +462,7 @@ async def pacientes(page: ft.page, data: dict):
     page.horizontal_alignment = "center"
     page.theme_mode = "LIGHT"
     page.decoration = ft.BoxDecoration(image=ft.DecorationImage(
-        src="assets/images/fondo2.jpg",
+        src=FONDO,
         fit=ft.ImageFit.COVER,
     ))
     page.scroll = False
@@ -526,9 +532,11 @@ async def pacientes(page: ft.page, data: dict):
                 with open(save_file_path, 'wb') as file:
                     file.write(response.content)
                 logger.debug(f"Archivo PDF guardado en: {save_file_path}")
-                page.overlay.append(ft.SnackBar(content=ft.Text(value=f"Archivo PDF guardado en: {save_file_path}"), open=True))
+                page.overlay.append(
+                    ft.SnackBar(content=ft.Text(value=f"Archivo PDF guardado en: {save_file_path}"), open=True))
             else:
-                page.overlay.append(ft.SnackBar(content=ft.Text(value="Error en general el PDF, intente más tarde"), open=True))
+                page.overlay.append(
+                    ft.SnackBar(content=ft.Text(value="Error en general el PDF, intente más tarde"), open=True))
                 logger.error("Mostrando mensaje de error al usuario en crear PDF")
         else:
             logger.error("No hay path definido")
@@ -592,7 +600,6 @@ async def pacientes(page: ft.page, data: dict):
         table_container.controls.clear()
         table_container.controls.append(build_table(vacuna))
         page.update()
-
 
     def cambio_info():
         result_container.controls.clear()
@@ -667,7 +674,7 @@ async def pacientes(page: ft.page, data: dict):
                                 ft.Column(  # Segunda columna
                                     [ft.Container(ft.Column(controls=[
                                         ft.Container(
-                                            ft.Image(src="assets/images/LogoVacuna.png", width=400, height=400),
+                                            ft.Image(src=f"/images/LogoVacuna.png", width=400, height=400),
                                             alignment=ft.alignment.center),
                                     ]), bgcolor=ft.colors.WHITE, width=350, alignment=ft.alignment.center, height=450)],
                                     width=357,
@@ -1040,4 +1047,4 @@ def main(page: ft.page):
 
 
 if __name__ == '__main__':
-    ft.app(target=main)
+    ft.app(target=main, assets_dir="assets")
