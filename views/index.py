@@ -12,7 +12,7 @@ def index_view(page: ft.Page) -> ft.View:
 
     def button_click(rol: Roles):
         page.session.set("rol", rol)
-        page.go("/login-in")
+        page.go("/login")
 
     contenido.content = ft.Container(
         bgcolor=ft.colors.WHITE,

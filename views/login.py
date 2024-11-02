@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 import ApiManager
 from validations.AccountDto import UsuarioDto, RolDto
-from validations.DireccionesDto import DistritoDto, ProvinciaDto
+from validations.DireccionesDto import DistritoDto, ProvinciaDto, DireccionDto
 from validations.PacienteDto import PacienteDto
 from views.controles import contenedor
 
@@ -18,49 +18,47 @@ logger = logging.getLogger(__name__)
 def sign_in(page: ft.Page) -> ft.View:
     async def login_pass(username: str, password: str):
         if username and not username.isspace() and password and not password.isspace():
-            response = await ApiManager.login_paciente(username, password)
+            response = await ApiManager.login(username=username, password=password)
             logger.debug(f"Respuesta del servidor: {response}")
 
             if "error" not in response:
                 page.session.set("access_token", response.get("access_token"))
                 page.session.set("refresh_token", response.get("refresh_token"))
-                paciente_json = response.get("paciente")
-
-                # TODO mapear basado en el rol recibido
-                if paciente_json:
-                    logger.debug(f"Paciente encontrado: {paciente_json}")
-                    paciente_log = PacienteDto(**paciente_json)
-                    # Llamar a la función `paciente` solo si hay información válida
-                    # await pacientes(page, response)
-                else:
-                    logger.warning("No se encontró información del paciente")
-                    page.overlay.append(ft.AlertDialog(content=ft.Text(value="No es un paciente"), open=True))
+                # Redirigir a su dashboard con la información ya guardada
             else:
-                page.overlay.append(
-                    ft.AlertDialog(content=ft.Text(value="Revise su contraseña y usuario"), open=True))
-            logger.exception("Error durante el login")
-            # page.overlay.append(ft.AlertDialog(content=ft.Text(value="Error de conexión o de servidor"), open=True))
-
+                logger.error("Error durante el login")
+                error = response.get("error")
+                if isinstance(error, ValidationError):
+                    page.overlay.append(
+                        ft.AlertDialog(content=ft.Text(value="Validación fallida. Intente nuevamente"), open=True))
+                elif isinstance(error, Exception):
+                    page.overlay.append(
+                        ft.AlertDialog(content=ft.Text(value="Error de conexión o de servidor"), open=True))
+                else:
+                    page.overlay.append(
+                        ft.AlertDialog(content=ft.Text(value="Revise su contraseña y usuario"), open=True))
         else:
             page.overlay.append(ft.AlertDialog(content=ft.Text(value="Usuario y contraseña son requeridos"), open=True))
-
-        # Asegúrate de actualizar la página
         page.update()
 
     async def handle_login(e):
-        await login_pass(user.value, password.value)
+        await login_pass(user_field.value, password_field.value)
 
-    user = ft.TextField(
+    user_field = ft.TextField(
         width=300,
         height=40,
+        color=ft.colors.BLACK,
+        max_length=50,
         hint_text='Cédula/Pasaporte/Correo/Usuario',
         border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
     )
 
-    password = ft.TextField(
+    password_field = ft.TextField(
         width=300,
         height=40,
+        max_length=70,
+        color=ft.colors.BLACK,
         hint_text='Contraseña',
         prefix_icon=ft.icons.LOCK,
         border=ft.InputBorder.UNDERLINE,
@@ -71,78 +69,84 @@ def sign_in(page: ft.Page) -> ft.View:
     control = contenedor()
 
     control.content = ft.Container(
-        ft.Row([
-            ft.Container(
-                ft.Column(
-                    controls=[
-                        ft.Container(
-                            ft.Image(
-                                src="/images/icon.png",
-                                width=100,
-                                height=100
-                            ),
-                            alignment=ft.alignment.center
-                        ),
-                        ft.Text(
-                            'Iniciar sesión',
-                            width=400,
-                            size=30,
-                            weight=ft.FontWeight.W_900,
-                            text_align=ft.TextAlign.CENTER,
-                            color=ft.colors.WHITE
-                        ),
-                        ft.Container(
-                            user,
-                            alignment=ft.alignment.center
-                        ),
-                        ft.Container(
-                            password,
-                            alignment=ft.alignment.center
-                        ),
-                        ft.Container(
-                            ft.ElevatedButton(
-                                content=ft.Text(
-                                    'INICIAR',
-                                    color=ft.colors.BLUE,
-                                    weight=ft.FontWeight.W_500,
-                                ),
-                                width=200,
-                                bgcolor='white',
-                                on_click=handle_login
-                            ),
-                            alignment=ft.alignment.center
-                        ),
-                        ft.Container(
-                            ft.Row([
-                                ft.Text('¿No tiene una cuenta?'),
-                                ft.TextButton('Crear una cuenta',
-                                              on_click=lambda _: page.go("/register"),
-                                              ),
-                            ], spacing=8),
-                            padding=ft.padding.only(24),
-                        ),
-                        ft.Container(
-                            ft.Row([
-                                ft.TextButton('Regresar a la pagina principal',
-                                              on_click=lambda _: page.go("/")),
-                            ], spacing=1),
-                            padding=ft.padding.symmetric(-10, 50),
-                            alignment=ft.alignment.center
-                        ),
-                    ],
-                    alignment=ft.MainAxisAlignment.SPACE_EVENLY,
-                ),
-                gradient=ft.LinearGradient(['blue', 'lightblue']),
-                width=320,
-                height=460,
-                border_radius=20,
-            ),
-        ], alignment=ft.MainAxisAlignment.CENTER),
         padding=20,
+        content=ft.Row(
+            alignment=ft.MainAxisAlignment.CENTER,
+            controls=[
+                ft.Container(
+                    gradient=ft.LinearGradient(begin=ft.alignment.top_center,
+                                               end=ft.alignment.bottom_center,
+                                               colors=[ft.colors.BLUE_300, ft.colors.BLUE_200]),
+                    width=320,
+                    height=460,
+                    border_radius=20,
+                    content=ft.Column(
+                        alignment=ft.MainAxisAlignment.SPACE_EVENLY,
+                        controls=[
+                            ft.Container(
+                                ft.Image(
+                                    src="/images/icon.png",
+                                    width=100,
+                                    height=100
+                                ),
+                                alignment=ft.alignment.center
+                            ),
+                            ft.Text(
+                                'Iniciar sesión',
+                                width=400,
+                                size=30,
+                                weight=ft.FontWeight.W_900,
+                                text_align=ft.TextAlign.CENTER,
+                                color=ft.colors.WHITE
+                            ),
+                            ft.Container(
+                                user_field,
+                                alignment=ft.alignment.center
+                            ),
+                            ft.Container(
+                                password_field,
+                                alignment=ft.alignment.center
+                            ),
+                            ft.Container(
+                                ft.ElevatedButton(
+                                    content=ft.Text(
+                                        'INICIAR',
+                                        color=ft.colors.WHITE,
+                                        weight=ft.FontWeight.W_500,
+                                    ),
+                                    width=200,
+                                    bgcolor='#0056b3',
+                                    on_click=handle_login
+                                ),
+                                alignment=ft.alignment.center
+                            ),
+                            ft.Container(
+                                ft.Row([
+                                    ft.Text('¿No tiene una cuenta?'),
+                                    ft.FilledTonalButton('Crear una cuenta',
+                                                         width=156,
+                                                         on_click=lambda _: page.go("/register"),
+                                                         ),
+                                ], ),
+                                padding=ft.padding.only(10),
+                            ),
+                            ft.Container(
+                                ft.Row([
+                                    ft.FilledTonalButton('Regresar a la pagina principal',
+                                                         on_click=lambda _: page.go("/")),
+                                ], ),
+                                padding=ft.padding.symmetric(-10, 40),
+                                alignment=ft.alignment.center
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        ),
     )
 
     return ft.View(
-        route="/login-in",
+        route="/login",
         controls=[ft.SafeArea(
             expand=True,
             content=control,
@@ -150,27 +154,33 @@ def sign_in(page: ft.Page) -> ft.View:
     )
 
 
-# Registrarse basado en el rol
+# Registrarse TODO basado en el rol
 def sign_up(page: ft.Page) -> ft.View:
     provincias: List[ProvinciaDto] = []
     distritos: List[DistritoDto] = []
 
     if not page.session.contains_key("rol"):
-        page.overlay.append(ft.AlertDialog(content=ft.Text(value="No se ha podido determinar su rol"),
-                                           open=True,
-                                           on_dismiss=page.go("/")))
+        page.overlay.append(
+            ft.AlertDialog(content=ft.Text(value="No se ha podido determinar su rol. Intente nuevamente"),
+                           open=True,
+                           on_dismiss=lambda _: page.go("/")))
+        page.update()
 
-    async def obtener_provincias_y_distritos():
-        provincias = await ApiManager.get_provincias()
-        distritos = await ApiManager.get_distritos()
-        return provincias, distritos
-
-    def filtrar_distritos_por_provincia(distritos: List[DistritoDto], provincia_id: int):
+    def filtrar_distritos_por_provincia(provincia_id: int):
         return [d for d in distritos if d.provincia.id == provincia_id]
+
+    def actualizar_distritos(provincia_id):
+        distritos_filtrados = filtrar_distritos_por_provincia(int(provincia_id))
+        dropdown_distrito.options = [ft.dropdown.Option(text=d.nombre, key=str(d.id)) for d in distritos_filtrados]
+        dropdown_distrito.value = 0
+        page.update()
 
     async def obtener_prov_dist():
         nonlocal provincias, distritos
-        provincias, distritos = await obtener_provincias_y_distritos()
+        provincias = await ApiManager.get_provincias()
+        distritos = await ApiManager.get_distritos()
+        dropdown_provincia.options = [ft.dropdown.Option(text=prov.nombre, key=str(prov.id)) for prov in provincias]
+        page.update()
 
     page.run_task(obtener_prov_dist)
 
@@ -194,6 +204,8 @@ def sign_up(page: ft.Page) -> ft.View:
         username_valid = usuario.value if usuario.value and not usuario.value.isspace() else None
         password_valid = password.value if password.value and not password.value.isspace() else None
         sexo_valid = sexo.value if sexo.value and not sexo.value.isspace() else None
+        direccion_valid = direccion.value if direccion.value and not direccion.value.isspace() else None
+        distrito_valid = dropdown_distrito.value if dropdown_distrito.value != 0 else None
 
         return {
             "nombre1": nombre1,
@@ -207,12 +219,18 @@ def sign_up(page: ft.Page) -> ft.View:
             "telefonoValid": telefono_valid,
             "usernameValid": username_valid,
             "passwordValid": password_valid,
-            "sexoValid": sexo_valid
+            "sexoValid": sexo_valid,
+            "direccionValid": direccion_valid,
+            "distritosValid": distrito_valid,
         }
 
-    def armar_dto_paciente(datos_validados):
+    def armar_dto_paciente(datos_validados: dict):
         try:
             rol = page.session.get("rol")
+            direccion_dto = DireccionDto(
+                direccion=datos_validados["direccionValid"],
+                distritos=DistritoDto(id=datos_validados["distritosValid"])
+            ) if datos_validados["direccionValid"] is not None else None
             # Crear el DTO del paciente con los valores validados
             paciente_dto = PacienteDto(
                 nombre=datos_validados["nombre1"],
@@ -226,29 +244,39 @@ def sign_up(page: ft.Page) -> ft.View:
                 telefono=datos_validados["telefonoValid"],
                 sexo=datos_validados["sexoValid"],
                 estado="ACTIVO",  # Datos fijos para demo
-                disabled=False,
+                disabled=False,  # Datos fijos para demo
                 usuario=UsuarioDto(
                     username=datos_validados["usernameValid"],
                     password=datos_validados["passwordValid"],
                     roles={RolDto(id=rol.value)}
-                )
+                ),
+                direccion=direccion_dto
             )
             return paciente_dto
         except ValidationError as e:
             logger.error(e)
-            return
+            return None
 
-    async def register_session(e):
+    async def register_handler(e):
         paciente_dto = armar_dto_paciente(validar_datos())
-        if not paciente_dto:
+        if paciente_dto is None:
+            page.overlay.append(
+                ft.AlertDialog(content=ft.Text(value="Validación fallida. Revise los datos"), open=True))
+            page.update()
             return
         data = await ApiManager.register_paciente(paciente_dto)
-        if data:
+        if "error" not in data:
             logger.info(data)
-            page.overlay.append(ft.AlertDialog(content=ft.Text(value="Registrado exitoso"), open=True))
+            page.overlay.append(ft.AlertDialog(
+                content=ft.Text(value="Registrado exitoso"),
+                open=True,
+                on_dismiss=lambda _: page.go("/login"),
+            ))
+            page.update()
         else:
-            page.overlay.append(ft.AlertDialog(content=ft.Text(value="Error recibido"), open=True))
-            logger.error("No hay data obtenida")
+            mensaje = data.get("message", "Error")
+            page.overlay.append(ft.AlertDialog(content=ft.Text(value=mensaje), open=True))
+            page.update()
 
     sexo = ft.RadioGroup(
         value=None,
@@ -285,7 +313,6 @@ def sign_up(page: ft.Page) -> ft.View:
     dropdown_provincia = ft.Dropdown(
         label="Provincia",
         icon_enabled_color=ft.colors.BLACK,
-        options=[ft.dropdown.Option(text=prov.nombre, key=str(prov.id)) for prov in provincias],
         on_change=lambda e: actualizar_distritos(e.control.value),
         value=str(0),
         width=270,
@@ -309,9 +336,8 @@ def sign_up(page: ft.Page) -> ft.View:
     )
 
     dropdown_distrito = ft.Dropdown(
-        label="Dristito",  # Etiqueta personalizada
+        label="Distrito",
         icon_enabled_color=ft.colors.BLACK,
-        options=[],
         value=str(0),
         autofocus=True,
         width=270,
@@ -349,7 +375,7 @@ def sign_up(page: ft.Page) -> ft.View:
 
     fecha = ft.TextField(label="Fecha de Nacimiento *", width=210, color=ft.colors.BLACK,
                          label_style=ft.TextStyle(color=ft.colors.BLACK, size=15, weight=ft.FontWeight.BOLD),
-                         read_only=True, hint_text="DD/MM/AAAA")
+                         read_only=True, hint_text="DD-MM-AAAA")
 
     pasaporte = ft.TextField(label="Pasaporte *", width=270, color=ft.colors.BLACK,
                              label_style=ft.TextStyle(color='black', size=15, weight=ft.FontWeight.BOLD))
@@ -380,9 +406,10 @@ def sign_up(page: ft.Page) -> ft.View:
         page.update()
 
     def handle_dismissal(e):
-        print("Necesito una fecha")
+        logger.info("Calendario dismissed. Necesito una fecha xd")
 
     registro = ft.Column(
+        scroll=ft.ScrollMode.ALWAYS,
         controls=[
             ft.Column(
                 controls=
@@ -412,7 +439,7 @@ def sign_up(page: ft.Page) -> ft.View:
                                             icon=ft.icons.CALENDAR_MONTH,
                                             width=50,
                                             bgcolor="blue",
-                                            on_click=lambda e: page.open(
+                                            on_click=lambda _: page.open(
                                                 ft.DatePicker(
                                                     first_date=datetime.datetime(
                                                         year=1900,
@@ -431,7 +458,7 @@ def sign_up(page: ft.Page) -> ft.View:
                                     correo,
                                     ft.Row(),
                                     ft.Row(controls=[
-                                        ft.Text("Sexo: ", size=15,
+                                        ft.Text("Sexo * : ", size=15,
                                                 weight=ft.FontWeight.BOLD,
                                                 color="black"), sexo],
                                         alignment=ft.MainAxisAlignment.CENTER
@@ -444,14 +471,12 @@ def sign_up(page: ft.Page) -> ft.View:
 
                                 ],
                                 horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                                scroll=ft.ScrollMode.ALWAYS
                             ),
 
                         ],
                         alignment=ft.MainAxisAlignment.CENTER,
                     ),
                 ],
-                scroll=ft.ScrollMode.ALWAYS,
             ),
             ft.Row(controls=[
                 ft.ElevatedButton(
@@ -471,7 +496,7 @@ def sign_up(page: ft.Page) -> ft.View:
                     ),
                     icon=ft.icons.MEDICAL_INFORMATION,
                     icon_color=ft.colors.WHITE,
-                    on_click=register_session,
+                    on_click=register_handler,
                 ),
                 ft.ElevatedButton(
                     "Salir",
@@ -495,9 +520,7 @@ def sign_up(page: ft.Page) -> ft.View:
             ],
                 alignment=ft.MainAxisAlignment.CENTER,
             )
-
         ],
-        scroll=ft.ScrollMode.ALWAYS
     )
 
     header = ft.Container(
@@ -527,23 +550,16 @@ def sign_up(page: ft.Page) -> ft.View:
         border=ft.border.all(4, "white"),
         border_radius=10,
         bgcolor=ft.colors.WHITE,
-        col={"sm": 4, "md": 4, "xl": 4},
+        col={"sm": 3.5, "md": 3.5, "xl": 3.5},
     )
 
     contenido = contenedor()
+    contenido.margin = 0
     contenido.content = ft.Column(
-        controls=[ft.Row(controls=[header],
-                         alignment=ft.MainAxisAlignment.CENTER),
-                  ft.ResponsiveRow(controls=[reg_container],
-                                   alignment=ft.MainAxisAlignment.CENTER)],
         alignment=ft.MainAxisAlignment.CENTER,
+        controls=[ft.Row(controls=[header], alignment=ft.MainAxisAlignment.CENTER),
+                  ft.ResponsiveRow(controls=[reg_container], alignment=ft.MainAxisAlignment.CENTER), ],
     )
-
-    def actualizar_distritos(provincia_id):
-        distritos_filtrados = filtrar_distritos_por_provincia(distritos, int(provincia_id))
-        dropdown_distrito.options = [ft.dropdown.Option(text=d.nombre, key=str(d.id)) for d in distritos_filtrados]
-        dropdown_distrito.value = 0
-        page.update()
 
     return ft.View(
         route="/register",
