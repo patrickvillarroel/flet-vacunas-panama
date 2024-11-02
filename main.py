@@ -1,6 +1,7 @@
 import logging
 
 import flet as ft
+from flet_core import ThemeMode
 
 import views as vs
 
@@ -24,7 +25,7 @@ def main(page: ft.Page):
     page.navigation_bar = None
     page.window.maximized = True
     page.scroll = None
-    page.theme_mode = "LIGHT"
+    page.theme_mode = ThemeMode.LIGHT
     page.adaptive = True
     page.decoration = ft.BoxDecoration(
         bgcolor=ft.colors.TRANSPARENT,
@@ -41,10 +42,14 @@ def main(page: ft.Page):
         if page.route == "/":
             page.session.clear()
             page.views.append(vs.index_view(page))
-        elif page.route == "/login-in":
+        elif page.route == "/login":
             page.views.append(vs.sign_in(page))
         elif page.route == "/register":
             page.views.append(vs.sign_up(page))
+        else:
+            page.overlay.append(ft.SnackBar(content=ft.Text(value="Ruta inválida"), open=True))
+            page.update()
+            page.go("/")
         page.update()
         # TODO agregar solo las vistas permitidas por rol
 
