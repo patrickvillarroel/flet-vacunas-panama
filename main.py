@@ -2,7 +2,7 @@ import logging
 
 import flet as ft
 
-from views.index import view
+import views as vs
 
 logging.basicConfig(level=logging.INFO)
 # Colocarle a httpx solo nivel WARN
@@ -21,7 +21,7 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.bgcolor = ft.colors.TRANSPARENT
-    page.navigation_bar = False
+    page.navigation_bar = None
     page.window.maximized = True
     page.scroll = None
     page.theme_mode = "LIGHT"
@@ -33,10 +33,24 @@ def main(page: ft.Page):
             fit=ft.ImageFit.COVER,
         ))
     page.clean()
-    page.views.append(view(page))
+
+    def route_manager(route):
+        page.views.clear()
+        page.scroll = None
+        page.navigation_bar = None
+        if page.route == "/":
+            page.session.clear()
+            page.views.append(vs.index_view(page))
+        elif page.route == "/login-in":
+            page.views.append(vs.sign_in(page))
+        elif page.route == "/register":
+            page.views.append(vs.sign_up(page))
+        page.update()
+        # TODO agregar solo las vistas permitidas por rol
+
+    page.on_route_change = route_manager
     page.go("/")
     page.update()
-
 
 if __name__ == '__main__':
     ft.app(target=main, assets_dir="assets")
