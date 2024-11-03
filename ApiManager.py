@@ -1,11 +1,14 @@
+import asyncio
 import logging
 import os
-from typing import List, Union
+import threading
+import time
+from typing import List, Union, Generator, AsyncGenerator
 from uuid import UUID
 
 import httpx
 from dotenv import load_dotenv
-from httpx import Response
+from httpx import Request, Response
 from pydantic import ValidationError
 
 from validations.AccountDto import LoginInDto
@@ -18,6 +21,77 @@ load_dotenv(dotenv_path="assets/.env")
 BASE_URL = os.getenv("BASE_URL")
 if BASE_URL is None:
     raise RuntimeError("Base URL not set")
+
+
+class ApiAuthentication(httpx.Auth):
+    def __init__(self, access_token: str, refresh_token: str):
+        self.access_token = access_token
+        self.refresh_token = refresh_token
+        self.token_expiry = time.time() + 3600
+        self._sync_lock = threading.RLock()
+        self._async_lock = asyncio.Lock()
+
+    def auth_flow(self, request: Request) -> Generator[Request, Response, None]:
+        request.headers["Authorization"] = f"Bearer {self.access_token}"
+        response = yield request
+
+        if response.status_code == 401:
+            self.refresh_tokens()
+            request.headers["Authorization"] = f"Bearer {self.access_token}"
+            yield request
+
+    def refresh_tokens(self) -> None:
+        with self._sync_lock:
+            headers = {"Authorization": f"Bearer {self.refresh_token}"}
+            try:
+                if time.time() >= self.token_expiry:
+                    with httpx.Client(base_url=BASE_URL) as client:
+                        response = client.post("/token/refresh", headers=headers)
+                        response_json = response.json()
+                        api_response = ApiResponseDto(**response_json)
+                        response.raise_for_status()
+                        self.access_token = response_json["access_token"]
+                        self.refresh_token = response_json["refresh_token"]
+                        self.token_expiry = time.time() + 3600
+            except httpx.HTTPStatusError as e:
+                logger.exception(e)
+                if api_response.errors:
+                    logger.error(api_response.errors)
+                if api_response.warnings:
+                    logger.warning(api_response.warnings)
+            except Exception as e:
+                logger.exception(e)
+
+    async def async_auth_flow(self, request: Request) -> AsyncGenerator[Request, Response]:
+        request.headers["Authorization"] = f"Bearer {self.access_token}"
+        response = yield request
+
+        if response.status_code == 401:
+            await self.async_refresh_tokens()
+            request.headers["Authorization"] = f"Bearer {self.access_token}"
+            yield request
+
+    async def async_refresh_tokens(self) -> None:
+        async with self._async_lock:
+            headers = {"Authorization": f"Bearer {self.refresh_token}"}
+            async with httpx.AsyncClient(base_url=BASE_URL) as client:
+                try:
+                    if time.time() >= self.token_expiry:
+                        response = await client.post("/token/refresh", headers=headers)
+                        response_json = response.json()
+                        api_response = ApiResponseDto(**response_json)
+                        response.raise_for_status()
+                        self.access_token = api_response.data.get("access_token")
+                        self.refresh_token = api_response.data.get("refresh_token")
+                        self.token_expiry = time.time() + 3600
+                except httpx.HTTPStatusError as exception:
+                    logger.exception(exception)
+                    if api_response.errors:
+                        logger.error(api_response.errors)
+                    if api_response.warnings:
+                        logger.warning(api_response.warnings)
+                except Exception as e:
+                    logger.exception(f"Error al refrescar token. {e}")
 
 
 async def get_distritos() -> List[DistritoDto]:
@@ -111,13 +185,10 @@ async def register_paciente(paciente_dto: PacienteDto) -> dict:
             return {"error": e, "message": "Ha ocurrido un error, reintente luego"}
 
 
-async def get_vista_paciente_vacuna_enfermedad(token: str) -> dict:
-    if not token or token.isspace():
-        logging.error("Error al intentar obtener vista paciente, token no suministrado")
-    headers = {"Authorization": f"Bearer {token}"}
-    async with httpx.AsyncClient(base_url=BASE_URL) as client:
+async def get_vista_paciente_vacuna_enfermedad(async_client: ApiAuthentication) -> dict:
+    async with httpx.AsyncClient(base_url=BASE_URL, auth=async_client) as client:
         try:
-            response = await client.get("/patient", headers=headers)
+            response = await client.get("/patient")
             response_json = response.json()
             api_response = ApiResponseDto(**response_json)
             response.raise_for_status()
@@ -128,21 +199,20 @@ async def get_vista_paciente_vacuna_enfermedad(token: str) -> dict:
                 logger.error(api_response.errors)
             if api_response.warnings:
                 logger.warning(api_response.warnings)
-            if exception.response.status_code == 401:
-                return {"error": "Acceso no autorizado",
-                        "message": "Error al intentar acceder a sus datos, reintentando..."}
-            else:
-                return {"error": exception, "message": "Ha ocurrido un error"}
+            if response.status_code == 404:
+                return api_response.data
+            return {"error": exception, "message": "Ha ocurrido un error"}
         except Exception as e:
             logger.error(f"Error al obtener vista paciente. {e}")
             return {"error": e, "message": "Error, reintente luego"}
 
 
-async def get_pdf_file_paciente(id_paciente: UUID, id_vacuna: UUID) -> Response | None:
+async def get_pdf_file_paciente(id_paciente: UUID, id_vacuna: UUID) -> httpx.Response | None:
     if id_paciente and id_vacuna:
         async with httpx.AsyncClient(base_url=BASE_URL) as client:
             try:
-                response = await client.get(f"/pdf?idVacuna={id_vacuna}&idPaciente={id_paciente}")
+                params = {"idVacuna": str(id_vacuna), "idPaciente": str(id_paciente)}
+                response = await client.get("/pdf", params=params)
                 response.raise_for_status()
             except httpx.HTTPStatusError as exception:
                 logger.error(exception)
@@ -156,26 +226,5 @@ async def get_pdf_file_paciente(id_paciente: UUID, id_vacuna: UUID) -> Response 
         return None
 
 
-# TODO cambiar por httpx.Auth flow
-async def refresh_tokens(refresh_token: str) -> dict:
-    if not refresh_token or refresh_token.isspace():
-        logging.error("Error al intentar refresh token token no dado")
-        return {}
-    headers = {"Authorization": f"Bearer {refresh_token}"}
-    async with httpx.AsyncClient(base_url=BASE_URL) as client:
-        try:
-            response = await client.post("/token/refresh", headers=headers)
-            response_json = response.json()
-            api_response = ApiResponseDto(**response_json)
-            response.raise_for_status()
-            return api_response.data
-        except httpx.HTTPStatusError as exception:
-            logger.error(exception)
-            if api_response.errors:
-                logger.error(api_response.errors)
-            if api_response.warnings:
-                logger.warning(api_response.warnings)
-            return {"error": "No se pudo volver a acceder a los datos"}
-        except Exception as e:
-            logger.error(f"Error al refrescar token. {e}")
-            return {"error": "Error inesperado"}
+def get_pdf_paciente_url(id_paciente: UUID, id_vacuna: UUID) -> str:
+    return BASE_URL + f"/pdf?idVacuna={id_vacuna}&idPaciente={id_paciente}"
