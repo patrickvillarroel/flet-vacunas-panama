@@ -12,3 +12,12 @@ def contenedor() -> ft.Container:
         margin=-10,
         alignment=ft.alignment.center,
     )
+
+
+def dialog_contactos() -> ft.AlertDialog:
+    return ft.AlertDialog(
+        title=ft.Text("Contactos"),
+        content=ft.Text("Ministerio de Salud (512-9100)" + "\n" +
+                        "Caja del Seguro Social (199)"),
+        open=True,
+    )
