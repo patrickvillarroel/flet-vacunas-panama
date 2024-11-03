@@ -1,9 +1,8 @@
 import logging
 
 import flet as ft
-from flet_core import ThemeMode
 
-import views as vs
+import views
 
 logging.basicConfig(level=logging.INFO)
 # Colocarle a httpx solo nivel WARN
@@ -25,7 +24,7 @@ def main(page: ft.Page):
     page.navigation_bar = None
     page.window.maximized = True
     page.scroll = None
-    page.theme_mode = ThemeMode.LIGHT
+    page.theme_mode = ft.ThemeMode.LIGHT
     page.adaptive = True
     page.decoration = ft.BoxDecoration(
         bgcolor=ft.colors.TRANSPARENT,
@@ -41,17 +40,18 @@ def main(page: ft.Page):
         page.navigation_bar = None
         if page.route == "/":
             page.session.clear()
-            page.views.append(vs.index_view(page))
+            page.views.append(views.index_view(page))
         elif page.route == "/login":
-            page.views.append(vs.sign_in(page))
+            page.views.append(views.sign_in(page))
         elif page.route == "/register":
-            page.views.append(vs.sign_up(page))
+            page.views.append(views.sign_up(page))
+        elif page.route == "/paciente" and page.session.contains_key("paciente"):
+            page.views.append(views.paciente_view(page))
         else:
-            page.overlay.append(ft.SnackBar(content=ft.Text(value="Ruta inválida"), open=True))
+            page.overlay.append(ft.SnackBar(content=ft.Text("Ruta inválida"), open=True))
             page.update()
             page.go("/")
         page.update()
-        # TODO agregar solo las vistas permitidas por rol
 
     page.on_route_change = route_manager
     page.go("/")

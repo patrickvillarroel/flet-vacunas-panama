@@ -14,7 +14,7 @@ from views.controles import contenedor
 logger = logging.getLogger(__name__)
 
 
-# Iniciar sesión
+# Iniciar sesión TODO redirigir a un dashboard construido de forma dinámica
 def sign_in(page: ft.Page) -> ft.View:
     async def login_pass(username: str, password: str):
         if username and not username.isspace() and password and not password.isspace():
@@ -25,20 +25,25 @@ def sign_in(page: ft.Page) -> ft.View:
                 page.session.set("access_token", response.get("access_token"))
                 page.session.set("refresh_token", response.get("refresh_token"))
                 # Redirigir a su dashboard con la información ya guardada
+                if response.get("paciente", None):
+                    page.session.set("paciente", response.get("paciente"))
+                    page.go("/paciente")
+                else:
+                    page.overlay.append(ft.AlertDialog(content=ft.Text("Rol no soportado. Lo sentimos"), open=True))
             else:
                 logger.error("Error durante el login")
                 error = response.get("error")
                 if isinstance(error, ValidationError):
                     page.overlay.append(
-                        ft.AlertDialog(content=ft.Text(value="Validación fallida. Intente nuevamente"), open=True))
+                        ft.AlertDialog(content=ft.Text("Validación fallida. Intente nuevamente"), open=True))
                 elif isinstance(error, Exception):
                     page.overlay.append(
-                        ft.AlertDialog(content=ft.Text(value="Error de conexión o de servidor"), open=True))
+                        ft.AlertDialog(content=ft.Text("Error de conexión o de servidor"), open=True))
                 else:
                     page.overlay.append(
-                        ft.AlertDialog(content=ft.Text(value="Revise su contraseña y usuario"), open=True))
+                        ft.AlertDialog(content=ft.Text("Revise su contraseña y usuario"), open=True))
         else:
-            page.overlay.append(ft.AlertDialog(content=ft.Text(value="Usuario y contraseña son requeridos"), open=True))
+            page.overlay.append(ft.AlertDialog(content=ft.Text("Usuario y contraseña son requeridos"), open=True))
         page.update()
 
     async def handle_login(e):
@@ -49,6 +54,7 @@ def sign_in(page: ft.Page) -> ft.View:
         height=40,
         color=ft.colors.BLACK,
         max_length=50,
+        autofocus=True,
         hint_text='Cédula/Pasaporte/Correo/Usuario',
         border=ft.InputBorder.UNDERLINE,
         prefix_icon=ft.icons.PERSON,
@@ -124,7 +130,7 @@ def sign_in(page: ft.Page) -> ft.View:
                                 ft.Row([
                                     ft.Text('¿No tiene una cuenta?'),
                                     ft.FilledTonalButton('Crear una cuenta',
-                                                         width=156,
+                                                         width=158,
                                                          on_click=lambda _: page.go("/register"),
                                                          ),
                                 ], ),
@@ -161,7 +167,7 @@ def sign_up(page: ft.Page) -> ft.View:
 
     if not page.session.contains_key("rol"):
         page.overlay.append(
-            ft.AlertDialog(content=ft.Text(value="No se ha podido determinar su rol. Intente nuevamente"),
+            ft.AlertDialog(content=ft.Text("No se ha podido determinar su rol. Intente nuevamente"),
                            open=True,
                            on_dismiss=lambda _: page.go("/")))
         page.update()
@@ -261,21 +267,18 @@ def sign_up(page: ft.Page) -> ft.View:
         paciente_dto = armar_dto_paciente(validar_datos())
         if paciente_dto is None:
             page.overlay.append(
-                ft.AlertDialog(content=ft.Text(value="Validación fallida. Revise los datos"), open=True))
+                ft.AlertDialog(content=ft.Text("Validación fallida. Revise los datos"), open=True))
             page.update()
             return
         data = await ApiManager.register_paciente(paciente_dto)
         if "error" not in data:
             logger.info(data)
-            page.overlay.append(ft.AlertDialog(
-                content=ft.Text(value="Registrado exitoso"),
-                open=True,
-                on_dismiss=lambda _: page.go("/login"),
-            ))
+            page.overlay.append(ft.AlertDialog(content=ft.Text("Registrado exitoso"), open=True,
+                                               on_dismiss=lambda _: page.go("/login"), ))
             page.update()
         else:
             mensaje = data.get("message", "Error")
-            page.overlay.append(ft.AlertDialog(content=ft.Text(value=mensaje), open=True))
+            page.overlay.append(ft.AlertDialog(content=ft.Text(mensaje), open=True))
             page.update()
 
     sexo = ft.RadioGroup(
