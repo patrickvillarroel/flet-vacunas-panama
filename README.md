@@ -1,6 +1,6 @@
 # :syringe: Proyecto de Gestión de Información sobre Vacunación en Panamá - Fronted
 
-![Imagen logo del proyecto](https://github.com/Kingg22/api-vacunas-panama/blob/6af77570fccb3737547a1065f8f4d25316c896c8/src/main/resources/images/icon.png)
+![Imagen logo del proyecto](https://github.com/Kingg22/api-vacunas-panama/blob/main/src/main/resources/images/icon.png)
 
 Este es el repositorio **fronted** para el proyecto, el cual tiene como objetivo facilitar la gestión y seguimiento de 
 vacunas en diversas sedes y con múltiples usuarios. Esta aplicación permite la interacción con el backend para realizar operaciones relacionadas con la administración de
@@ -12,7 +12,7 @@ pacientes, vacunas y demás recursos asociados.
 - Soporte para la creación de usuarios.
 - Integración con el backend para realizar consultas en tiempo real sobre la disponibilidad de dosis, vacunas y más.
 
-Para más información sobre el proyecto completo y su funcionamiento, consulta el [repositorio principal](https://github.com/Kingg22/desktopapp-vacunas-panama/tree/refactor/api)
+Para más información sobre el proyecto completo y su funcionamiento, consulta el [repositorio principal](https://github.com/Kingg22/api-vacunas-panama)
 
 ## :hammer_and_wrench:Tecnologías Utilizadas
 - [Python](https://www.python.org/) - Lenguaje de programación para el fronted.
@@ -25,8 +25,8 @@ Lista completa de dependencias en requirements.txt
 ## :wrench: Clonación y configuración del repositorio
 Sigue estos pasos para clonar el repositorio:
 > [!NOTE]
-> Requiere [Python](https://www.python.org/downloads/) instalado. Para las funcionalidades con el backend debe estar funcionando
-> para que el fronted se conecte correctamente. Puedes seguir las instrucciones de instalación y configuración del backend en [este enlace](https://github.com/Kingg22/desktopapp-vacunas-panama/blob/refactor/api/README.md#wrench-clonaci%C3%B3n-y-configuraci%C3%B3n-del-repositorio).
+> Requiere Python instalado. Para las funcionalidades con el backend debe estar funcionando
+> para que el fronted se conecte correctamente. Puedes seguir las instrucciones de instalación y configuración del backend en [este enlace](https://github.com/Kingg22/api-vacunas-panama?tab=readme-ov-file#wrench-clonaci%C3%B3n-y-configuraci%C3%B3n-del-repositorio).
 
 1. Clona este repositorio
     ```bash
